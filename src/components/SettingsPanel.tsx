@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface Props {
   names: string[]
@@ -20,6 +20,7 @@ export function SettingsPanel({
   onClose,
 }: Props) {
   const [timeValue, setTimeValue] = useState(String(timeLimitMinutes))
+  useEffect(() => { setTimeValue(String(timeLimitMinutes)) }, [timeLimitMinutes])
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-end z-50">
@@ -56,8 +57,8 @@ export function SettingsPanel({
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Speakers</p>
             <div className="flex flex-col gap-2">
-              {names.map((name) => (
-                <div key={name} className="flex gap-2 items-center">
+              {names.map((name, index) => (
+                <div key={index} className="flex gap-2 items-center">
                   <input
                     type="text"
                     defaultValue={name}
