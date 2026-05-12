@@ -97,4 +97,28 @@ describe('timerStore', () => {
     const { segments } = useTimerStore.getState()
     expect(segments).toHaveLength(0)
   })
+
+  it('resetSpeaker removes only that speaker segments, leaving others intact', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().addSpeaker('Bob')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().tickRunning(2)
+    useTimerStore.getState().pauseSpeaker('Alice')
+    useTimerStore.getState().startSpeaker('Bob')
+    useTimerStore.getState().tickRunning(3)
+    useTimerStore.getState().pauseSpeaker('Bob')
+    useTimerStore.getState().resetSpeaker('Alice')
+    const { segments } = useTimerStore.getState()
+    expect(segments).toHaveLength(1)
+    expect(segments[0]).toEqual({ name: 'Bob', duration: 3 })
+  })
+
+  it('removeSpeaker clears that speaker segments from history', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().tickRunning(4)
+    useTimerStore.getState().pauseSpeaker('Alice')
+    useTimerStore.getState().removeSpeaker('Alice')
+    expect(useTimerStore.getState().segments).toHaveLength(0)
+  })
 })

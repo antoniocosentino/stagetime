@@ -35,8 +35,13 @@ export const useTimerStore = create<TimerState>()(
         })),
       removeSpeaker: (name) =>
         set((s) => {
-          const { [name]: _, ...rest } = s.speakers
-          return { speakers: rest }
+          const { [name]: _speaker, ...speakers } = s.speakers
+          const { [name]: _start, ...activeSegmentStart } = s.activeSegmentStart
+          return {
+            speakers,
+            segments: s.segments.filter((seg) => seg.name !== name),
+            activeSegmentStart,
+          }
         }),
       startSpeaker: (name) =>
         set((s) => {
@@ -73,9 +78,14 @@ export const useTimerStore = create<TimerState>()(
           }
         }),
       resetSpeaker: (name) =>
-        set((s) => ({
-          speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },
-        })),
+        set((s) => {
+          const { [name]: _, ...activeSegmentStart } = s.activeSegmentStart
+          return {
+            speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },
+            segments: s.segments.filter((seg) => seg.name !== name),
+            activeSegmentStart,
+          }
+        }),
       tickRunning: (delta) =>
         set((s) => {
           const updated: Record<string, SpeakerTimer> = {}
