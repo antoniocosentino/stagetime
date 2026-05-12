@@ -42,3 +42,18 @@ it('sets segment background color from segment color', () => {
   const seg = container.querySelector('[data-testid="segment"]') as HTMLElement
   expect(seg.style.backgroundColor).toBe('rgb(59, 130, 246)')
 })
+
+it('normalizes segment widths proportionally when in overtime', () => {
+  const segments = [
+    { name: 'Alice', duration: 600, color: '#3b82f6' },
+    { name: 'Bob', duration: 600, color: '#22c55e' },
+  ]
+  // totalElapsed 1200 > totalSeconds 900 (overtime)
+  const { container } = render(
+    <GlobalTimer totalSeconds={900} totalElapsed={1200} segments={segments} />
+  )
+  const segs = container.querySelectorAll('[data-testid="segment"]') as NodeListOf<HTMLElement>
+  // Each segment is 600/1200 = 50% (not 600/900 = 66.7%)
+  expect(segs[0].style.width).toBe('50%')
+  expect(segs[1].style.width).toBe('50%')
+})

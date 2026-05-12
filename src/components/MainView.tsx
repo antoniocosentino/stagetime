@@ -21,7 +21,7 @@ export function MainView() {
 
   const runningSpeaker = Object.entries(speakers).find(([, s]) => s.running)
   const completedColored = segments.map((seg) => ({ ...seg, color: colorMap[seg.name] ?? '#6b7280' }))
-  const coloredSegments = runningSpeaker
+  const coloredSegmentsRaw = runningSpeaker
     ? [
         ...completedColored,
         {
@@ -33,6 +33,7 @@ export function MainView() {
         },
       ]
     : completedColored
+  const coloredSegments = coloredSegmentsRaw.filter((seg) => seg.duration > 0)
 
   return (
     <main className="flex-1 p-4 flex flex-col gap-6 overflow-y-auto">

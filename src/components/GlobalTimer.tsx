@@ -26,7 +26,7 @@ export function GlobalTimer({ totalSeconds, totalElapsed, segments }: Props) {
             data-testid="segment"
             className="h-full"
             style={{
-              width: `${(seg.duration / totalSeconds) * 100}%`,
+              width: `${(seg.duration / Math.max(totalSeconds, totalElapsed)) * 100}%`,
               backgroundColor: seg.color,
             }}
           />
