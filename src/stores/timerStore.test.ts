@@ -77,4 +77,24 @@ describe('timerStore', () => {
     expect(segments).toHaveLength(1)
     expect(segments[0]).toEqual({ name: 'Alice', duration: 5 })
   })
+
+  it('startSpeaker finalizes the previously running speaker segment', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().addSpeaker('Bob')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().tickRunning(3)
+    useTimerStore.getState().startSpeaker('Bob')
+    const { segments } = useTimerStore.getState()
+    expect(segments).toHaveLength(1)
+    expect(segments[0]).toEqual({ name: 'Alice', duration: 3 })
+  })
+
+  it('re-starting the same speaker does not push a zero-duration segment', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().tickRunning(2)
+    useTimerStore.getState().startSpeaker('Alice')
+    const { segments } = useTimerStore.getState()
+    expect(segments).toHaveLength(0)
+  })
 })

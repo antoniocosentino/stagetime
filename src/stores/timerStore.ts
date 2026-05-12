@@ -41,14 +41,22 @@ export const useTimerStore = create<TimerState>()(
       startSpeaker: (name) =>
         set((s) => {
           const updated: Record<string, SpeakerTimer> = {}
+          const newSegments = [...s.segments]
+          const newActiveSegmentStart = { ...s.activeSegmentStart }
           for (const [key, speaker] of Object.entries(s.speakers)) {
+            if (speaker.running && key !== name) {
+              const start = s.activeSegmentStart[key]
+              if (start !== undefined) {
+                newSegments.push({ name: key, duration: speaker.elapsed - start })
+                delete newActiveSegmentStart[key]
+              }
+            }
             updated[key] = { ...speaker, running: key === name }
           }
-          const newActiveSegmentStart = { ...s.activeSegmentStart }
           if (!s.speakers[name]?.running) {
             newActiveSegmentStart[name] = s.speakers[name]?.elapsed ?? 0
           }
-          return { speakers: updated, activeSegmentStart: newActiveSegmentStart }
+          return { speakers: updated, segments: newSegments, activeSegmentStart: newActiveSegmentStart }
         }),
       pauseSpeaker: (name) =>
         set((s) => {
