@@ -8,7 +8,7 @@ import { SettingsPanel } from './components/SettingsPanel'
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const names = useSettingsStore((s) => s.names)
-  const { setNames, addName, removeName, setTimeLimitMinutes, timeLimitMinutes } = useSettingsStore()
+  const { setNames, addName, removeName, setTimeLimitMinutes, timeLimitMinutes, shuffleNames } = useSettingsStore()
 
   // Reconcile timer store entries with the current names list.
   // Reads timer state via getState() to avoid subscribing to every tick.
@@ -49,6 +49,7 @@ export default function App() {
           onRemoveName={removeName}
           onChangeName={handleChangeName}
           onSetTimeLimit={setTimeLimitMinutes}
+          onShuffle={shuffleNames}
           onClose={() => setSettingsOpen(false)}
         />
       )}
