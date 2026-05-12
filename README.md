@@ -1,4 +1,21 @@
-# React + TypeScript + Vite
+# Stagetime ⏲
+
+Stagetime keeps your meetings on track by giving every voice a fair shot at the floor.
+
+Add your speakers, set a total time limit, and hit Start when someone begins talking. Each person gets their own timer that counts up in real time, color-coded, so you can read the room at a glance.
+  
+A shared progress bar at the top shows who's spoken and for how long, in the order it actually happened, so the whole group can see how the conversation is unfolding.
+
+When time runs low, the bar turns red. When someone runs over, it keeps counting, no hard stops, just honest visibility. Shuffle the speaker order with one tap, reset individual timers between rounds, and adjust the lineup on the fly from the settings panel.
+
+# Demo
+
+https://github.com/user-attachments/assets/ac507bc2-a02e-4035-82c1-7712bfecdbeb
+
+
+
+
+## Project settings
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
