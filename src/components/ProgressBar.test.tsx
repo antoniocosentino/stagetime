@@ -29,3 +29,11 @@ it('applies red color when progress exceeds 1 (overtime)', () => {
   const fill = container.querySelector('[data-testid="progress-fill"]') as HTMLElement
   expect(fill.className).toContain('bg-red')
 })
+
+it('uses provided color as inline style when color prop is given', () => {
+  const { container } = render(<ProgressBar progress={0.5} color="#3b82f6" />)
+  const fill = container.querySelector('[data-testid="progress-fill"]') as HTMLElement
+  expect(fill.style.backgroundColor).toBe('rgb(59, 130, 246)')
+  expect(fill.className).not.toContain('bg-green')
+  expect(fill.className).not.toContain('bg-red')
+})
