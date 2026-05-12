@@ -10,7 +10,9 @@ When time runs low, the bar turns red. When someone runs over, it keeps counting
 
 # Demo
 
-https://github.com/user-attachments/assets/ac507bc2-a02e-4035-82c1-7712bfecdbeb
+https://github.com/user-attachments/assets/a83ece67-e61d-4cdf-8d9e-aa390a90df37
+
+
 
 
 
