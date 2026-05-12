@@ -6,8 +6,15 @@ export interface SpeakerTimer {
   running: boolean
 }
 
+export interface SpeakerSegment {
+  name: string
+  duration: number
+}
+
 interface TimerState {
   speakers: Record<string, SpeakerTimer>
+  segments: SpeakerSegment[]
+  activeSegmentStart: Record<string, number>
   addSpeaker: (name: string) => void
   removeSpeaker: (name: string) => void
   startSpeaker: (name: string) => void
@@ -20,6 +27,8 @@ export const useTimerStore = create<TimerState>()(
   persist(
     (set) => ({
       speakers: {},
+      segments: [],
+      activeSegmentStart: {},
       addSpeaker: (name) =>
         set((s) => ({
           speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },
@@ -35,12 +44,26 @@ export const useTimerStore = create<TimerState>()(
           for (const [key, speaker] of Object.entries(s.speakers)) {
             updated[key] = { ...speaker, running: key === name }
           }
-          return { speakers: updated }
+          const newActiveSegmentStart = { ...s.activeSegmentStart }
+          if (!s.speakers[name]?.running) {
+            newActiveSegmentStart[name] = s.speakers[name]?.elapsed ?? 0
+          }
+          return { speakers: updated, activeSegmentStart: newActiveSegmentStart }
         }),
       pauseSpeaker: (name) =>
-        set((s) => ({
-          speakers: { ...s.speakers, [name]: { ...s.speakers[name], running: false } },
-        })),
+        set((s) => {
+          const start = s.activeSegmentStart[name]
+          const newSegments =
+            start !== undefined
+              ? [...s.segments, { name, duration: s.speakers[name].elapsed - start }]
+              : s.segments
+          const { [name]: _, ...activeSegmentStart } = s.activeSegmentStart
+          return {
+            speakers: { ...s.speakers, [name]: { ...s.speakers[name], running: false } },
+            segments: newSegments,
+            activeSegmentStart,
+          }
+        }),
       resetSpeaker: (name) =>
         set((s) => ({
           speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },

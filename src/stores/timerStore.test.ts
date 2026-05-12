@@ -2,7 +2,7 @@ import { useTimerStore } from './timerStore'
 
 beforeEach(() => {
   sessionStorage.clear()
-  useTimerStore.setState({ speakers: {} })
+  useTimerStore.setState({ speakers: {}, segments: [], activeSegmentStart: {} })
 })
 
 describe('timerStore', () => {
@@ -66,5 +66,15 @@ describe('timerStore', () => {
     useTimerStore.getState().addSpeaker('Alice')
     useTimerStore.getState().tickRunning(1)
     expect(useTimerStore.getState().speakers['Alice'].elapsed).toBe(0)
+  })
+
+  it('pauseSpeaker finalizes segment with correct duration', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().tickRunning(5)
+    useTimerStore.getState().pauseSpeaker('Alice')
+    const { segments } = useTimerStore.getState()
+    expect(segments).toHaveLength(1)
+    expect(segments[0]).toEqual({ name: 'Alice', duration: 5 })
   })
 })
