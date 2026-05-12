@@ -32,4 +32,12 @@ describe('settingsStore', () => {
     useSettingsStore.getState().setTimeLimitMinutes(30)
     expect(useSettingsStore.getState().timeLimitMinutes).toBe(30)
   })
+
+  it('shuffleNames returns the same names in any order', () => {
+    useSettingsStore.setState({ names: ['Alice', 'Bob', 'Carol'], timeLimitMinutes: 15 })
+    useSettingsStore.getState().shuffleNames()
+    const { names } = useSettingsStore.getState()
+    expect(names).toHaveLength(3)
+    expect(names).toEqual(expect.arrayContaining(['Alice', 'Bob', 'Carol']))
+  })
 })
