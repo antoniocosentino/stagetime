@@ -73,3 +73,14 @@ it('calls onShuffle when shuffle button is clicked', async () => {
   await userEvent.click(screen.getByRole('button', { name: /shuffle order/i }))
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
+
+it('reflects reshuffled names order when names prop changes', () => {
+  const { rerender } = render(<SettingsPanel {...baseProps} names={['Alice', 'Bob', 'Carol']} />)
+  rerender(<SettingsPanel {...baseProps} names={['Carol', 'Alice', 'Bob']} />)
+  const inputs = screen.getAllByRole('textbox').filter(
+    (el) => ['Alice', 'Bob', 'Carol'].includes((el as HTMLInputElement).value)
+  )
+  expect((inputs[0] as HTMLInputElement).value).toBe('Carol')
+  expect((inputs[1] as HTMLInputElement).value).toBe('Alice')
+  expect((inputs[2] as HTMLInputElement).value).toBe('Bob')
+})
