@@ -1,14 +1,14 @@
 import { formatSeconds } from '../utils/time'
-import { ProgressBar } from './ProgressBar'
+import type { ColoredSegment } from '../stores/timerStore'
 
 interface Props {
   totalSeconds: number
   totalElapsed: number
+  segments: ColoredSegment[]
 }
 
-export function GlobalTimer({ totalSeconds, totalElapsed }: Props) {
+export function GlobalTimer({ totalSeconds, totalElapsed, segments }: Props) {
   const remaining = totalSeconds - totalElapsed
-  const progress = totalSeconds > 0 ? totalElapsed / totalSeconds : 0
   const isOvertime = totalElapsed > totalSeconds
   const label = isOvertime
     ? `+${formatSeconds(totalElapsed - totalSeconds)} overtime`
@@ -19,7 +19,19 @@ export function GlobalTimer({ totalSeconds, totalElapsed }: Props) {
       <p className={`text-sm font-medium ${isOvertime ? 'text-red-600' : 'text-gray-600'}`}>
         {label}
       </p>
-      <ProgressBar progress={progress} />
+      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden flex">
+        {segments.map((seg, i) => (
+          <div
+            key={i}
+            data-testid="segment"
+            className="h-full"
+            style={{
+              width: `${(seg.duration / totalSeconds) * 100}%`,
+              backgroundColor: seg.color,
+            }}
+          />
+        ))}
+      </div>
     </div>
   )
 }

@@ -2,16 +2,43 @@ import { render, screen } from '@testing-library/react'
 import { GlobalTimer } from './GlobalTimer'
 
 it('shows remaining time label when no time has elapsed', () => {
-  render(<GlobalTimer totalSeconds={900} totalElapsed={0} />)
+  render(<GlobalTimer totalSeconds={900} totalElapsed={0} segments={[]} />)
   expect(screen.getByText('15:00 remaining')).toBeInTheDocument()
 })
 
 it('counts down correctly based on elapsed', () => {
-  render(<GlobalTimer totalSeconds={900} totalElapsed={60} />)
+  render(<GlobalTimer totalSeconds={900} totalElapsed={60} segments={[]} />)
   expect(screen.getByText('14:00 remaining')).toBeInTheDocument()
 })
 
 it('shows overtime label when total elapsed exceeds total seconds', () => {
-  render(<GlobalTimer totalSeconds={900} totalElapsed={960} />)
+  render(<GlobalTimer totalSeconds={900} totalElapsed={960} segments={[]} />)
   expect(screen.getByText('+1:00 overtime')).toBeInTheDocument()
+})
+
+it('renders one segment div per entry', () => {
+  const segments = [
+    { name: 'Alice', duration: 60, color: '#3b82f6' },
+    { name: 'Bob', duration: 30, color: '#22c55e' },
+  ]
+  render(<GlobalTimer totalSeconds={900} totalElapsed={90} segments={segments} />)
+  expect(screen.getAllByTestId('segment')).toHaveLength(2)
+})
+
+it('sets segment width proportional to totalSeconds', () => {
+  const segments = [{ name: 'Alice', duration: 450, color: '#3b82f6' }]
+  const { container } = render(
+    <GlobalTimer totalSeconds={900} totalElapsed={450} segments={segments} />
+  )
+  const seg = container.querySelector('[data-testid="segment"]') as HTMLElement
+  expect(seg.style.width).toBe('50%')
+})
+
+it('sets segment background color from segment color', () => {
+  const segments = [{ name: 'Alice', duration: 60, color: '#3b82f6' }]
+  const { container } = render(
+    <GlobalTimer totalSeconds={900} totalElapsed={60} segments={segments} />
+  )
+  const seg = container.querySelector('[data-testid="segment"]') as HTMLElement
+  expect(seg.style.backgroundColor).toBe('rgb(59, 130, 246)')
 })

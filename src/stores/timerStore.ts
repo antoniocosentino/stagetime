@@ -11,6 +11,12 @@ export interface SpeakerSegment {
   duration: number
 }
 
+export interface ColoredSegment {
+  name: string
+  duration: number
+  color: string
+}
+
 interface TimerState {
   speakers: Record<string, SpeakerTimer>
   segments: SpeakerSegment[]
