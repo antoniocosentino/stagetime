@@ -52,6 +52,16 @@ describe('timerStore', () => {
     expect(speakers['Bob'].elapsed).toBe(0)
   })
 
+  it('starting a speaker pauses any other running speaker', () => {
+    useTimerStore.getState().addSpeaker('Alice')
+    useTimerStore.getState().addSpeaker('Bob')
+    useTimerStore.getState().startSpeaker('Alice')
+    useTimerStore.getState().startSpeaker('Bob')
+    const { speakers } = useTimerStore.getState()
+    expect(speakers['Alice'].running).toBe(false)
+    expect(speakers['Bob'].running).toBe(true)
+  })
+
   it('tickRunning does not update paused speakers', () => {
     useTimerStore.getState().addSpeaker('Alice')
     useTimerStore.getState().tickRunning(1)

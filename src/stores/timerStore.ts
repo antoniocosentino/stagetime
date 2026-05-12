@@ -30,9 +30,13 @@ export const useTimerStore = create<TimerState>()(
           return { speakers: rest }
         }),
       startSpeaker: (name) =>
-        set((s) => ({
-          speakers: { ...s.speakers, [name]: { ...s.speakers[name], running: true } },
-        })),
+        set((s) => {
+          const updated: Record<string, SpeakerTimer> = {}
+          for (const [key, speaker] of Object.entries(s.speakers)) {
+            updated[key] = { ...speaker, running: key === name }
+          }
+          return { speakers: updated }
+        }),
       pauseSpeaker: (name) =>
         set((s) => ({
           speakers: { ...s.speakers, [name]: { ...s.speakers[name], running: false } },
