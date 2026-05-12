@@ -7,6 +7,7 @@ const baseProps = {
   elapsed: 60,
   running: false,
   allottedSeconds: 300,
+  color: '#3b82f6',
   onStart: vi.fn(),
   onPause: vi.fn(),
   onReset: vi.fn(),
@@ -59,4 +60,11 @@ it('shows time display in red when elapsed exceeds allotted', () => {
   const { container } = render(<SpeakerCard {...baseProps} elapsed={400} allottedSeconds={300} />)
   const display = container.querySelector('[data-testid="time-display"]') as HTMLElement
   expect(display.className).toContain('text-red')
+})
+
+it('renders color dot with correct background color', () => {
+  const { container } = render(<SpeakerCard {...baseProps} color="#3b82f6" />)
+  const dot = container.querySelector('[data-testid="color-dot"]') as HTMLElement
+  expect(dot).toBeInTheDocument()
+  expect(dot.style.backgroundColor).toBe('rgb(59, 130, 246)')
 })
