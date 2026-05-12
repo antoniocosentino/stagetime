@@ -9,6 +9,7 @@ const baseProps = {
   onRemoveName: vi.fn(),
   onChangeName: vi.fn(),
   onSetTimeLimit: vi.fn(),
+  onShuffle: vi.fn(),
   onClose: vi.fn(),
 }
 
@@ -64,4 +65,11 @@ it('calls onSetTimeLimit with numeric value on change', async () => {
   await userEvent.clear(input)
   await userEvent.type(input, '20')
   expect(onSetTimeLimit).toHaveBeenLastCalledWith(20)
+})
+
+it('calls onShuffle when shuffle button is clicked', async () => {
+  const onShuffle = vi.fn()
+  render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
+  await userEvent.click(screen.getByRole('button', { name: /shuffle order/i }))
+  expect(onShuffle).toHaveBeenCalledTimes(1)
 })
