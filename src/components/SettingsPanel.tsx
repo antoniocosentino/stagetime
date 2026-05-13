@@ -24,6 +24,12 @@ export function SettingsPanel({
   const [timeValue, setTimeValue] = useState(String(timeLimitMinutes))
   useEffect(() => { setTimeValue(String(timeLimitMinutes)) }, [timeLimitMinutes])
 
+  const [closing, setClosing] = useState(false)
+  function handleClose() {
+    setClosing(true)
+    setTimeout(onClose, 250)
+  }
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const prevLengthRef = useRef(names.length)
   useEffect(() => {
@@ -36,13 +42,19 @@ export function SettingsPanel({
   }, [names.length])
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-end z-50" onClick={onClose}>
-      <div className="bg-white w-full max-w-sm h-full flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`fixed inset-0 bg-black/40 flex justify-end z-50 ${closing ? 'animate-[fade-out_0.25s_ease-in_forwards]' : 'animate-[fade-in_0.2s_ease-out]'}`}
+      onClick={handleClose}
+    >
+      <div
+        className={`bg-white w-full max-w-sm h-full flex flex-col shadow-xl ${closing ? 'animate-[slide-out-right_0.25s_ease-in_forwards]' : 'animate-[slide-in-right_0.25s_ease-out]'}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="font-semibold text-gray-800">Settings</h2>
           <button
             aria-label="Close"
-            onClick={onClose}
+            onClick={handleClose}
             className="text-gray-500 hover:text-gray-800 transition-colors"
           >
             ✕

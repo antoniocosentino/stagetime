@@ -14,6 +14,7 @@ const baseProps = {
 }
 
 beforeEach(() => vi.clearAllMocks())
+afterEach(() => vi.useRealTimers())
 
 it('renders all speaker name inputs', () => {
   render(<SettingsPanel {...baseProps} />)
@@ -26,10 +27,13 @@ it('renders the time limit input', () => {
   expect(screen.getByDisplayValue('15')).toBeInTheDocument()
 })
 
-it('calls onClose when the close button is clicked', async () => {
+it('calls onClose when the close button is clicked (after animation)', () => {
+  vi.useFakeTimers()
   const onClose = vi.fn()
   render(<SettingsPanel {...baseProps} onClose={onClose} />)
-  await userEvent.click(screen.getByRole('button', { name: /close/i }))
+  fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  expect(onClose).not.toHaveBeenCalled()
+  vi.runAllTimers()
   expect(onClose).toHaveBeenCalledTimes(1)
 })
 
@@ -94,10 +98,13 @@ it('does not call onAddName when Enter is pressed on a non-last speaker input', 
   expect(onAddName).not.toHaveBeenCalled()
 })
 
-it('calls onClose when clicking the backdrop', async () => {
+it('calls onClose when clicking the backdrop (after animation)', () => {
+  vi.useFakeTimers()
   const onClose = vi.fn()
   render(<SettingsPanel {...baseProps} onClose={onClose} />)
-  await userEvent.click(document.querySelector('.bg-black\\/40')!)
+  fireEvent.click(document.querySelector('.bg-black\\/40')!)
+  expect(onClose).not.toHaveBeenCalled()
+  vi.runAllTimers()
   expect(onClose).toHaveBeenCalledTimes(1)
 })
 
