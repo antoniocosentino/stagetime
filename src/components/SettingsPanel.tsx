@@ -25,8 +25,8 @@ export function SettingsPanel({
   useEffect(() => { setTimeValue(String(timeLimitMinutes)) }, [timeLimitMinutes])
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-end z-50">
-      <div className="bg-white w-full max-w-sm h-full flex flex-col shadow-xl">
+    <div className="fixed inset-0 bg-black/40 flex justify-end z-50" onClick={onClose}>
+      <div className="bg-white w-full max-w-sm h-full flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="font-semibold text-gray-800">Settings</h2>
           <button

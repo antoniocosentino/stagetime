@@ -74,6 +74,20 @@ it('calls onShuffle when shuffle button is clicked', async () => {
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
+it('calls onClose when clicking the backdrop', async () => {
+  const onClose = vi.fn()
+  render(<SettingsPanel {...baseProps} onClose={onClose} />)
+  await userEvent.click(document.querySelector('.bg-black\\/40')!)
+  expect(onClose).toHaveBeenCalledTimes(1)
+})
+
+it('does not call onClose when clicking inside the panel', async () => {
+  const onClose = vi.fn()
+  render(<SettingsPanel {...baseProps} onClose={onClose} />)
+  await userEvent.click(screen.getByDisplayValue('Alice'))
+  expect(onClose).not.toHaveBeenCalled()
+})
+
 it('reflects reshuffled names order when names prop changes', () => {
   const { rerender } = render(<SettingsPanel {...baseProps} names={['Alice', 'Bob', 'Carol']} />)
   rerender(<SettingsPanel {...baseProps} names={['Carol', 'Alice', 'Bob']} />)
