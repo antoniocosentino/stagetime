@@ -74,6 +74,26 @@ it('calls onShuffle when shuffle button is clicked', async () => {
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
+it('calls onAddName when Enter is pressed on the last speaker input', async () => {
+  const onAddName = vi.fn()
+  render(<SettingsPanel {...baseProps} onAddName={onAddName} />)
+  const inputs = screen.getAllByRole('textbox').filter(
+    (el) => ['Alice', 'Bob'].includes((el as HTMLInputElement).value)
+  )
+  await userEvent.type(inputs[inputs.length - 1], '{Enter}')
+  expect(onAddName).toHaveBeenCalledTimes(1)
+})
+
+it('does not call onAddName when Enter is pressed on a non-last speaker input', async () => {
+  const onAddName = vi.fn()
+  render(<SettingsPanel {...baseProps} onAddName={onAddName} names={['Alice', 'Bob', 'Carol']} />)
+  const inputs = screen.getAllByRole('textbox').filter(
+    (el) => ['Alice', 'Bob', 'Carol'].includes((el as HTMLInputElement).value)
+  )
+  await userEvent.type(inputs[0], '{Enter}')
+  expect(onAddName).not.toHaveBeenCalled()
+})
+
 it('calls onClose when clicking the backdrop', async () => {
   const onClose = vi.fn()
   render(<SettingsPanel {...baseProps} onClose={onClose} />)

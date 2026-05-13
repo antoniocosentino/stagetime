@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface Props {
   names: string[]
@@ -23,6 +23,17 @@ export function SettingsPanel({
 }: Props) {
   const [timeValue, setTimeValue] = useState(String(timeLimitMinutes))
   useEffect(() => { setTimeValue(String(timeLimitMinutes)) }, [timeLimitMinutes])
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const prevLengthRef = useRef(names.length)
+  useEffect(() => {
+    if (names.length > prevLengthRef.current) {
+      const last = inputRefs.current[names.length - 1]
+      last?.focus()
+      last?.select()
+    }
+    prevLengthRef.current = names.length
+  }, [names.length])
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-end z-50" onClick={onClose}>
@@ -59,11 +70,15 @@ export function SettingsPanel({
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Speakers</p>
             <div className="flex flex-col gap-2">
-              {names.map((name) => (
+              {names.map((name, idx) => (
                 <div key={name} className="flex gap-2 items-center">
                   <input
+                    ref={(el) => { inputRefs.current[idx] = el }}
                     type="text"
                     defaultValue={name}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && idx === names.length - 1) onAddName()
+                    }}
                     onBlur={(e) => {
                       if (e.target.value !== name) onChangeName(name, e.target.value)
                     }}
