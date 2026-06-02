@@ -1,4 +1,5 @@
 import { GlobalTimer } from './GlobalTimer'
+import type { RenderedSegment } from './GlobalTimer'
 import { SpeakerCard } from './SpeakerCard'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useTimerStore } from '../stores/timerStore'
@@ -6,41 +7,62 @@ import { timePerSpeaker } from '../utils/time'
 import { COLORS } from '../constants/colors'
 
 export function MainView() {
-  const { names, timeLimitMinutes } = useSettingsStore()
-  const { speakers, segments, activeSegmentStart, startSpeaker, pauseSpeaker, resetSpeaker } =
-    useTimerStore()
+  const { names, timeLimitMinutes, idleTimeMinutes } = useSettingsStore()
+  const {
+    speakers,
+    segments,
+    globalRunning,
+    globalElapsed,
+    currentSpeaker,
+    activeSegmentStart,
+    idleSegmentStart,
+    startGlobal,
+    pauseGlobal,
+    resetAll,
+    setCurrentSpeaker,
+  } = useTimerStore()
 
   const totalSeconds = timeLimitMinutes * 60
-  const allotted = names.length > 0 ? timePerSpeaker(timeLimitMinutes, names.length) : totalSeconds
-  const totalElapsed = Object.values(speakers).reduce((sum, s) => sum + s.elapsed, 0)
+  const allotted =
+    names.length > 0
+      ? timePerSpeaker(timeLimitMinutes, idleTimeMinutes, names.length)
+      : totalSeconds
 
   const colorMap: Record<string, string> = {}
   names.forEach((name, i) => {
     colorMap[name] = COLORS[i % COLORS.length]
   })
 
-  const runningSpeaker = Object.entries(speakers).find(([, s]) => s.running)
-  const completedColored = segments.map((seg) => ({ ...seg, color: colorMap[seg.name] ?? '#6b7280' }))
-  const coloredSegmentsRaw = runningSpeaker
-    ? [
-        ...completedColored,
-        {
-          name: runningSpeaker[0],
-          duration:
-            runningSpeaker[1].elapsed -
-            (activeSegmentStart[runningSpeaker[0]] ?? runningSpeaker[1].elapsed),
-          color: colorMap[runningSpeaker[0]] ?? '#6b7280',
-        },
-      ]
-    : completedColored
-  const coloredSegments = coloredSegmentsRaw.filter((seg) => seg.duration > 0)
+  const renderedSegments: RenderedSegment[] = segments.map((seg) =>
+    seg.type === 'idle'
+      ? { duration: seg.duration }
+      : { duration: seg.duration, color: colorMap[seg.name] ?? '#6b7280' }
+  )
+
+  if (globalRunning) {
+    if (currentSpeaker !== null && activeSegmentStart !== null) {
+      const duration = globalElapsed - activeSegmentStart
+      if (duration > 0) {
+        renderedSegments.push({ duration, color: colorMap[currentSpeaker] ?? '#6b7280' })
+      }
+    } else if (currentSpeaker === null && idleSegmentStart !== null) {
+      const duration = globalElapsed - idleSegmentStart
+      if (duration > 0) {
+        renderedSegments.push({ duration })
+      }
+    }
+  }
 
   return (
     <main className="flex-1 p-4 flex flex-col gap-6 overflow-y-auto">
       <GlobalTimer
         totalSeconds={totalSeconds}
-        totalElapsed={totalElapsed}
-        segments={coloredSegments}
+        globalElapsed={globalElapsed}
+        globalRunning={globalRunning}
+        segments={renderedSegments}
+        onStart={startGlobal}
+        onPause={pauseGlobal}
+        onReset={resetAll}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {names.map((name) => {
@@ -51,12 +73,14 @@ export function MainView() {
               key={name}
               name={name}
               elapsed={speaker.elapsed}
-              running={speaker.running}
+              isCurrentSpeaker={currentSpeaker === name}
               allottedSeconds={allotted}
               color={colorMap[name]}
-              onStart={() => startSpeaker(name)}
-              onPause={() => pauseSpeaker(name)}
-              onReset={() => resetSpeaker(name)}
+              onSelect={() =>
+                currentSpeaker === name
+                  ? setCurrentSpeaker(null)
+                  : setCurrentSpeaker(name)
+              }
             />
           )
         })}
