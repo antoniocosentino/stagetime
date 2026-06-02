@@ -3,113 +3,171 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 export interface SpeakerTimer {
   elapsed: number
-  running: boolean
 }
 
-export interface SpeakerSegment {
+export interface Segment {
   name: string
   duration: number
-}
-
-export interface ColoredSegment {
-  name: string
-  duration: number
-  color: string
+  type: 'speaker' | 'idle'
 }
 
 interface TimerState {
   speakers: Record<string, SpeakerTimer>
-  segments: SpeakerSegment[]
-  activeSegmentStart: Record<string, number>
+  globalRunning: boolean
+  globalElapsed: number
+  currentSpeaker: string | null
+  idleElapsed: number
+  segments: Segment[]
+  activeSegmentStart: number | null
+  idleSegmentStart: number | null
+  lastTickTime: number | null
   addSpeaker: (name: string) => void
   removeSpeaker: (name: string) => void
-  startSpeaker: (name: string) => void
-  pauseSpeaker: (name: string) => void
-  resetSpeaker: (name: string) => void
-  tickRunning: (delta: number) => void
+  startGlobal: () => void
+  pauseGlobal: () => void
+  resetAll: () => void
+  setCurrentSpeaker: (name: string | null) => void
+  tick: () => void
 }
 
 export const useTimerStore = create<TimerState>()(
   persist(
     (set) => ({
       speakers: {},
+      globalRunning: false,
+      globalElapsed: 0,
+      currentSpeaker: null,
+      idleElapsed: 0,
       segments: [],
-      activeSegmentStart: {},
+      activeSegmentStart: null,
+      idleSegmentStart: null,
+      lastTickTime: null,
+
       addSpeaker: (name) =>
         set((s) => ({
-          speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },
+          speakers: { ...s.speakers, [name]: { elapsed: 0 } },
         })),
+
       removeSpeaker: (name) =>
         set((s) => {
-          const { [name]: _speaker, ...speakers } = s.speakers
-          const { [name]: _start, ...activeSegmentStart } = s.activeSegmentStart
-          return {
-            speakers,
-            segments: s.segments.filter((seg) => seg.name !== name),
-            activeSegmentStart,
+          const { [name]: _, ...speakers } = s.speakers
+          const segments = s.segments.filter((seg) => seg.name !== name)
+          if (s.currentSpeaker === name) {
+            return {
+              speakers,
+              segments,
+              currentSpeaker: null,
+              activeSegmentStart: null,
+              idleSegmentStart: s.globalRunning ? s.globalElapsed : null,
+            }
           }
+          return { speakers, segments }
         }),
-      startSpeaker: (name) =>
+
+      startGlobal: () =>
         set((s) => {
-          const updated: Record<string, SpeakerTimer> = {}
+          if (s.globalRunning) return s
+          const updates: Partial<TimerState> = {
+            globalRunning: true,
+            lastTickTime: Date.now(),
+          }
+          if (s.currentSpeaker === null && s.idleSegmentStart === null) {
+            updates.idleSegmentStart = s.globalElapsed
+          }
+          if (s.currentSpeaker !== null && s.activeSegmentStart === null) {
+            updates.activeSegmentStart = s.globalElapsed
+          }
+          return updates
+        }),
+
+      pauseGlobal: () =>
+        set((s) => {
+          if (!s.globalRunning) return s
           const newSegments = [...s.segments]
-          const newActiveSegmentStart = { ...s.activeSegmentStart }
-          for (const [key, speaker] of Object.entries(s.speakers)) {
-            if (speaker.running && key !== name) {
-              const start = s.activeSegmentStart[key]
-              if (start !== undefined) {
-                newSegments.push({ name: key, duration: speaker.elapsed - start })
-                delete newActiveSegmentStart[key]
-              }
+          const updates: Partial<TimerState> = { globalRunning: false }
+          if (s.currentSpeaker !== null && s.activeSegmentStart !== null) {
+            const duration = s.globalElapsed - s.activeSegmentStart
+            if (duration > 0) {
+              newSegments.push({ name: s.currentSpeaker, duration, type: 'speaker' })
             }
-            updated[key] = { ...speaker, running: key === name }
+            updates.activeSegmentStart = null
+          } else if (s.currentSpeaker === null && s.idleSegmentStart !== null) {
+            const duration = s.globalElapsed - s.idleSegmentStart
+            if (duration > 0) {
+              newSegments.push({ name: '__idle__', duration, type: 'idle' })
+            }
+            updates.idleSegmentStart = null
           }
-          if (!s.speakers[name]?.running) {
-            newActiveSegmentStart[name] = s.speakers[name]?.elapsed ?? 0
-          }
-          return { speakers: updated, segments: newSegments, activeSegmentStart: newActiveSegmentStart }
+          updates.segments = newSegments
+          return updates
         }),
-      pauseSpeaker: (name) =>
+
+      resetAll: () =>
         set((s) => {
-          const start = s.activeSegmentStart[name]
-          const newSegments =
-            start !== undefined
-              ? [...s.segments, { name, duration: s.speakers[name].elapsed - start }]
-              : s.segments
-          const { [name]: _, ...activeSegmentStart } = s.activeSegmentStart
+          const resetSpeakers: Record<string, SpeakerTimer> = {}
+          for (const name of Object.keys(s.speakers)) {
+            resetSpeakers[name] = { elapsed: 0 }
+          }
           return {
-            speakers: { ...s.speakers, [name]: { ...s.speakers[name], running: false } },
+            speakers: resetSpeakers,
+            globalRunning: false,
+            globalElapsed: 0,
+            currentSpeaker: null,
+            idleElapsed: 0,
+            segments: [],
+            activeSegmentStart: null,
+            idleSegmentStart: null,
+            lastTickTime: null,
+          }
+        }),
+
+      setCurrentSpeaker: (name) =>
+        set((s) => {
+          const newSegments = [...s.segments]
+          if (s.currentSpeaker !== null && s.activeSegmentStart !== null) {
+            const duration = s.globalElapsed - s.activeSegmentStart
+            if (duration > 0) {
+              newSegments.push({ name: s.currentSpeaker, duration, type: 'speaker' })
+            }
+          } else if (s.currentSpeaker === null && s.idleSegmentStart !== null) {
+            const duration = s.globalElapsed - s.idleSegmentStart
+            if (duration > 0) {
+              newSegments.push({ name: '__idle__', duration, type: 'idle' })
+            }
+          }
+          return {
             segments: newSegments,
-            activeSegmentStart,
+            currentSpeaker: name,
+            activeSegmentStart: name !== null ? s.globalElapsed : null,
+            idleSegmentStart: name === null ? s.globalElapsed : null,
           }
         }),
-      resetSpeaker: (name) =>
+
+      tick: () =>
         set((s) => {
-          const { [name]: _, ...activeSegmentStart } = s.activeSegmentStart
-          return {
-            speakers: { ...s.speakers, [name]: { elapsed: 0, running: false } },
-            segments: s.segments.filter((seg) => seg.name !== name),
-            activeSegmentStart,
-          }
-        }),
-      tickRunning: (delta) =>
-        set((s) => {
-          const updated: Record<string, SpeakerTimer> = {}
-          let changed = false
-          for (const [name, speaker] of Object.entries(s.speakers)) {
-            if (speaker.running) {
-              updated[name] = { ...speaker, elapsed: speaker.elapsed + delta }
-              changed = true
-            } else {
-              updated[name] = speaker
+          const now = Date.now()
+          if (s.lastTickTime === null) return { lastTickTime: now }
+          if (!s.globalRunning) return { lastTickTime: now }
+          const delta = (now - s.lastTickTime) / 1000
+          const globalElapsed = s.globalElapsed + delta
+          const updates: Partial<TimerState> = { globalElapsed, lastTickTime: now }
+          if (s.currentSpeaker !== null && s.speakers[s.currentSpeaker]) {
+            updates.speakers = {
+              ...s.speakers,
+              [s.currentSpeaker]: { elapsed: s.speakers[s.currentSpeaker].elapsed + delta },
             }
+          } else {
+            updates.idleElapsed = s.idleElapsed + delta
           }
-          return changed ? { speakers: updated } : s
+          return updates
         }),
     }),
     {
       name: 'stagetime-timers',
       storage: createJSONStorage(() => sessionStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) state.lastTickTime = null
+      },
     }
   )
 )
