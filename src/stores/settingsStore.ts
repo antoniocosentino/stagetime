@@ -4,10 +4,12 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 interface SettingsState {
   names: string[]
   timeLimitMinutes: number
+  idleTimeMinutes: number
   setNames: (names: string[]) => void
   addName: (name: string) => void
   removeName: (name: string) => void
   setTimeLimitMinutes: (minutes: number) => void
+  setIdleTimeMinutes: (minutes: number) => void
   shuffleNames: () => void
 }
 
@@ -16,10 +18,12 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       names: ['test speaker'],
       timeLimitMinutes: 15,
+      idleTimeMinutes: 1,
       setNames: (names) => set({ names }),
       addName: (name) => set((s) => ({ names: [...s.names, name] })),
       removeName: (name) => set((s) => ({ names: s.names.filter((n) => n !== name) })),
       setTimeLimitMinutes: (timeLimitMinutes) => set({ timeLimitMinutes }),
+      setIdleTimeMinutes: (idleTimeMinutes) => set({ idleTimeMinutes }),
       shuffleNames: () =>
         set((s) => {
           const arr = [...s.names]

@@ -2,7 +2,7 @@ import { useSettingsStore } from './settingsStore'
 
 beforeEach(() => {
   localStorage.clear()
-  useSettingsStore.setState({ names: ['test speaker'], timeLimitMinutes: 15 })
+  useSettingsStore.setState({ names: ['test speaker'], timeLimitMinutes: 15, idleTimeMinutes: 1 })
 })
 
 describe('settingsStore', () => {
@@ -48,5 +48,14 @@ describe('settingsStore', () => {
     useSettingsStore.getState().shuffleNames()
     vi.restoreAllMocks()
     expect(useSettingsStore.getState().names).not.toEqual(['Alice', 'Bob', 'Carol'])
+  })
+
+  it('defaults idleTimeMinutes to 1', () => {
+    expect(useSettingsStore.getState().idleTimeMinutes).toBe(1)
+  })
+
+  it('setIdleTimeMinutes updates the idle time', () => {
+    useSettingsStore.getState().setIdleTimeMinutes(2)
+    expect(useSettingsStore.getState().idleTimeMinutes).toBe(2)
   })
 })
