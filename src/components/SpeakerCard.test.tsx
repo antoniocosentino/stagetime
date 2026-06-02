@@ -68,7 +68,16 @@ it('does not throw when card is clicked and onSelect is undefined', async () => 
 it('shows time display in red when elapsed exceeds allotted', () => {
   const { container } = render(<SpeakerCard {...baseProps} elapsed={400} allottedSeconds={300} />)
   const display = container.querySelector('[data-testid="time-display"]') as HTMLElement
-  expect(display.className).toContain('text-red')
+  expect(display.className).toContain('text-red-600')
+})
+
+it('calls onSelect when Enter is pressed on card and onSelect is provided', async () => {
+  const onSelect = vi.fn()
+  const { container } = render(<SpeakerCard {...baseProps} onSelect={onSelect} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  card.focus()
+  await userEvent.keyboard('{Enter}')
+  expect(onSelect).toHaveBeenCalledTimes(1)
 })
 
 it('renders color dot with correct background color', () => {
