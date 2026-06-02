@@ -4,20 +4,29 @@ import { ProgressBar } from './ProgressBar'
 interface Props {
   name: string
   elapsed: number
-  running: boolean
+  isCurrentSpeaker: boolean
   allottedSeconds: number
   color: string
-  onStart: () => void
-  onPause: () => void
-  onReset: () => void
+  onSelect: () => void
 }
 
-export function SpeakerCard({ name, elapsed, running, allottedSeconds, color, onStart, onPause, onReset }: Props) {
+export function SpeakerCard({
+  name,
+  elapsed,
+  isCurrentSpeaker,
+  allottedSeconds,
+  color,
+  onSelect,
+}: Props) {
   const progress = allottedSeconds > 0 ? elapsed / allottedSeconds : 0
   const isOvertime = elapsed > allottedSeconds
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+    <div
+      className={`bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm ${
+        isCurrentSpeaker ? 'ring-2 ring-blue-500' : ''
+      }`}
+    >
       <div className="flex items-center gap-2">
         <span
           data-testid="color-dot"
@@ -33,20 +42,16 @@ export function SpeakerCard({ name, elapsed, running, allottedSeconds, color, on
         {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
       </p>
       <ProgressBar progress={progress} color={color} />
-      <div className="flex gap-2">
-        <button
-          onClick={running ? onPause : onStart}
-          className="flex-1 rounded-lg px-3 py-1.5 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-        >
-          {running ? 'Pause' : 'Start'}
-        </button>
-        <button
-          onClick={onReset}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-        >
-          Reset
-        </button>
-      </div>
+      <button
+        onClick={onSelect}
+        className={`w-full rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+          isCurrentSpeaker
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+        }`}
+      >
+        Currently speaking
+      </button>
     </div>
   )
 }

@@ -5,12 +5,10 @@ import { SpeakerCard } from './SpeakerCard'
 const baseProps = {
   name: 'Alice',
   elapsed: 60,
-  running: false,
+  isCurrentSpeaker: false,
   allottedSeconds: 300,
   color: '#3b82f6',
-  onStart: vi.fn(),
-  onPause: vi.fn(),
-  onReset: vi.fn(),
+  onSelect: vi.fn(),
 }
 
 beforeEach(() => vi.clearAllMocks())
@@ -25,35 +23,40 @@ it('shows elapsed / allotted time as formatted strings', () => {
   expect(screen.getByText('1:00 / 5:00')).toBeInTheDocument()
 })
 
-it('shows Start button when not running', () => {
+it('renders a single "Currently speaking" button', () => {
   render(<SpeakerCard {...baseProps} />)
-  expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Currently speaking' })).toBeInTheDocument()
 })
 
-it('shows Pause button when running', () => {
-  render(<SpeakerCard {...baseProps} running={true} />)
-  expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+it('button has outlined style when not current speaker', () => {
+  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={false} />)
+  const btn = container.querySelector('button')!
+  expect(btn.className).toContain('border-gray-300')
 })
 
-it('calls onStart when Start is clicked', async () => {
-  const onStart = vi.fn()
-  render(<SpeakerCard {...baseProps} onStart={onStart} />)
-  await userEvent.click(screen.getByRole('button', { name: 'Start' }))
-  expect(onStart).toHaveBeenCalledTimes(1)
+it('button has filled blue style when current speaker', () => {
+  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={true} />)
+  const btn = container.querySelector('button')!
+  expect(btn.className).toContain('bg-blue-600')
 })
 
-it('calls onPause when Pause is clicked', async () => {
-  const onPause = vi.fn()
-  render(<SpeakerCard {...baseProps} running={true} onPause={onPause} />)
-  await userEvent.click(screen.getByRole('button', { name: 'Pause' }))
-  expect(onPause).toHaveBeenCalledTimes(1)
+it('card has ring styling when current speaker', () => {
+  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={true} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).toContain('ring-2')
 })
 
-it('calls onReset when Reset is clicked', async () => {
-  const onReset = vi.fn()
-  render(<SpeakerCard {...baseProps} onReset={onReset} />)
-  await userEvent.click(screen.getByRole('button', { name: 'Reset' }))
-  expect(onReset).toHaveBeenCalledTimes(1)
+it('card has no ring styling when not current speaker', () => {
+  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={false} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).not.toContain('ring-2')
+})
+
+it('calls onSelect when button is clicked', async () => {
+  const onSelect = vi.fn()
+  render(<SpeakerCard {...baseProps} onSelect={onSelect} />)
+  await userEvent.click(screen.getByRole('button', { name: 'Currently speaking' }))
+  expect(onSelect).toHaveBeenCalledTimes(1)
 })
 
 it('shows time display in red when elapsed exceeds allotted', () => {
@@ -65,6 +68,5 @@ it('shows time display in red when elapsed exceeds allotted', () => {
 it('renders color dot with correct background color', () => {
   const { container } = render(<SpeakerCard {...baseProps} color="#3b82f6" />)
   const dot = container.querySelector('[data-testid="color-dot"]') as HTMLElement
-  expect(dot).toBeInTheDocument()
   expect(dot.style.backgroundColor).toBe('rgb(59, 130, 246)')
 })
