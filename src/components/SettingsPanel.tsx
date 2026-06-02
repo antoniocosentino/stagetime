@@ -3,10 +3,12 @@ import { useState, useEffect, useRef } from 'react'
 interface Props {
   names: string[]
   timeLimitMinutes: number
+  idleTimeMinutes: number
   onAddName: () => void
   onRemoveName: (name: string) => void
   onChangeName: (oldName: string, newName: string) => void
   onSetTimeLimit: (minutes: number) => void
+  onSetIdleTime: (minutes: number) => void
   onShuffle: () => void
   onClose: () => void
 }
@@ -14,15 +16,20 @@ interface Props {
 export function SettingsPanel({
   names,
   timeLimitMinutes,
+  idleTimeMinutes,
   onAddName,
   onRemoveName,
   onChangeName,
   onSetTimeLimit,
+  onSetIdleTime,
   onShuffle,
   onClose,
 }: Props) {
   const [timeValue, setTimeValue] = useState(String(timeLimitMinutes))
   useEffect(() => { setTimeValue(String(timeLimitMinutes)) }, [timeLimitMinutes])
+
+  const [idleValue, setIdleValue] = useState(String(idleTimeMinutes))
+  useEffect(() => { setIdleValue(String(idleTimeMinutes)) }, [idleTimeMinutes])
 
   const [closing, setClosing] = useState(false)
   function handleClose() {
@@ -74,6 +81,23 @@ export function SettingsPanel({
                 setTimeValue(e.target.value)
                 const num = Number(e.target.value)
                 if (e.target.value !== '' && !isNaN(num)) onSetTimeLimit(num)
+              }}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Predicted idle time (minutes)
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={idleValue}
+              onChange={(e) => {
+                setIdleValue(e.target.value)
+                const num = Number(e.target.value)
+                if (e.target.value !== '' && !isNaN(num)) onSetIdleTime(num)
               }}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

@@ -5,10 +5,12 @@ import { SettingsPanel } from './SettingsPanel'
 const baseProps = {
   names: ['Alice', 'Bob'],
   timeLimitMinutes: 15,
+  idleTimeMinutes: 1,
   onAddName: vi.fn(),
   onRemoveName: vi.fn(),
   onChangeName: vi.fn(),
   onSetTimeLimit: vi.fn(),
+  onSetIdleTime: vi.fn(),
   onShuffle: vi.fn(),
   onClose: vi.fn(),
 }
@@ -124,4 +126,19 @@ it('reflects reshuffled names order when names prop changes', () => {
   expect((inputs[0] as HTMLInputElement).value).toBe('Carol')
   expect((inputs[1] as HTMLInputElement).value).toBe('Alice')
   expect((inputs[2] as HTMLInputElement).value).toBe('Bob')
+})
+
+it('renders the idle time input with current value', () => {
+  render(<SettingsPanel {...baseProps} idleTimeMinutes={2} />)
+  expect(screen.getByDisplayValue('2')).toBeInTheDocument()
+})
+
+it('calls onSetIdleTime with numeric value on change', async () => {
+  const onSetIdleTime = vi.fn()
+  render(<SettingsPanel {...baseProps} onSetIdleTime={onSetIdleTime} />)
+  const inputs = screen.getAllByRole('spinbutton')
+  const idleInput = inputs[1]
+  await userEvent.clear(idleInput)
+  await userEvent.type(idleInput, '3')
+  expect(onSetIdleTime).toHaveBeenLastCalledWith(3)
 })
