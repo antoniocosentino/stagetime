@@ -19,10 +19,13 @@ describe('formatSeconds', () => {
 })
 
 describe('timePerSpeaker', () => {
-  it('divides 15 minutes evenly among 3 speakers', () => {
-    expect(timePerSpeaker(15, 3)).toBe(300)
+  it('subtracts idle time before dividing among speakers', () => {
+    expect(timePerSpeaker(16, 1, 5)).toBe(180)
   })
-  it('returns full duration for a single speaker', () => {
-    expect(timePerSpeaker(10, 1)).toBe(600)
+  it('divides full time when idle is 0', () => {
+    expect(timePerSpeaker(15, 0, 3)).toBe(300)
+  })
+  it('returns full remaining duration for a single speaker', () => {
+    expect(timePerSpeaker(10, 1, 1)).toBe(540)
   })
 })

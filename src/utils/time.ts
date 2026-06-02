@@ -6,6 +6,10 @@ export function formatSeconds(totalSeconds: number): string {
   return `${sign}${m}:${s.toString().padStart(2, '0')}`
 }
 
-export function timePerSpeaker(timeLimitMinutes: number, speakerCount: number): number {
-  return (timeLimitMinutes * 60) / speakerCount
+export function timePerSpeaker(
+  timeLimitMinutes: number,
+  idleTimeMinutes: number,
+  speakerCount: number
+): number {
+  return ((timeLimitMinutes - idleTimeMinutes) * 60) / speakerCount
 }
