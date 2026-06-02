@@ -8,10 +8,17 @@ import { SettingsPanel } from './components/SettingsPanel'
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const names = useSettingsStore((s) => s.names)
-  const { setNames, addName, removeName, setTimeLimitMinutes, timeLimitMinutes, shuffleNames } = useSettingsStore()
+  const {
+    setNames,
+    addName,
+    removeName,
+    setTimeLimitMinutes,
+    setIdleTimeMinutes,
+    timeLimitMinutes,
+    idleTimeMinutes,
+    shuffleNames,
+  } = useSettingsStore()
 
-  // Reconcile timer store entries with the current names list.
-  // Reads timer state via getState() to avoid subscribing to every tick.
   useEffect(() => {
     const { speakers, addSpeaker, removeSpeaker } = useTimerStore.getState()
     names.forEach((name) => {
@@ -22,9 +29,8 @@ export default function App() {
     })
   }, [names])
 
-  // Single shared tick for all running timers.
   useInterval(() => {
-    useTimerStore.getState().tickRunning(0.1)
+    useTimerStore.getState().tick()
   }, 100)
 
   function handleChangeName(oldName: string, newName: string) {
@@ -45,10 +51,12 @@ export default function App() {
         <SettingsPanel
           names={names}
           timeLimitMinutes={timeLimitMinutes}
+          idleTimeMinutes={idleTimeMinutes}
           onAddName={() => addName(`Speaker ${names.length + 1}`)}
           onRemoveName={removeName}
           onChangeName={handleChangeName}
           onSetTimeLimit={setTimeLimitMinutes}
+          onSetIdleTime={setIdleTimeMinutes}
           onShuffle={shuffleNames}
           onClose={() => setSettingsOpen(false)}
         />
