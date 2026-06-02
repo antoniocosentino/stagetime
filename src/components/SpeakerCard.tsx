@@ -7,7 +7,7 @@ interface Props {
   isCurrentSpeaker: boolean
   allottedSeconds: number
   color: string
-  onSelect: () => void
+  onSelect?: () => void
 }
 
 export function SpeakerCard({
@@ -23,9 +23,10 @@ export function SpeakerCard({
 
   return (
     <div
+      onClick={onSelect}
       className={`bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm ${
         isCurrentSpeaker ? 'ring-2 ring-blue-500' : ''
-      }`}
+      } ${onSelect ? 'cursor-pointer' : ''}`}
     >
       <div className="flex items-center gap-2">
         <span
@@ -42,16 +43,6 @@ export function SpeakerCard({
         {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
       </p>
       <ProgressBar progress={progress} color={color} />
-      <button
-        onClick={onSelect}
-        className={`w-full rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-          isCurrentSpeaker
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-        }`}
-      >
-        Currently speaking
-      </button>
     </div>
   )
 }

@@ -8,7 +8,6 @@ const baseProps = {
   isCurrentSpeaker: false,
   allottedSeconds: 300,
   color: '#3b82f6',
-  onSelect: vi.fn(),
 }
 
 beforeEach(() => vi.clearAllMocks())
@@ -23,21 +22,9 @@ it('shows elapsed / allotted time as formatted strings', () => {
   expect(screen.getByText('1:00 / 5:00')).toBeInTheDocument()
 })
 
-it('renders a single "Currently speaking" button', () => {
+it('renders no button', () => {
   render(<SpeakerCard {...baseProps} />)
-  expect(screen.getByRole('button', { name: 'Currently speaking' })).toBeInTheDocument()
-})
-
-it('button has outlined style when not current speaker', () => {
-  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={false} />)
-  const btn = container.querySelector('button')!
-  expect(btn.className).toContain('border-gray-300')
-})
-
-it('button has filled blue style when current speaker', () => {
-  const { container } = render(<SpeakerCard {...baseProps} isCurrentSpeaker={true} />)
-  const btn = container.querySelector('button')!
-  expect(btn.className).toContain('bg-blue-600')
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
 })
 
 it('card has ring styling when current speaker', () => {
@@ -52,11 +39,30 @@ it('card has no ring styling when not current speaker', () => {
   expect(card.className).not.toContain('ring-2')
 })
 
-it('calls onSelect when button is clicked', async () => {
+it('card has cursor-pointer when onSelect is provided', () => {
+  const { container } = render(<SpeakerCard {...baseProps} onSelect={vi.fn()} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).toContain('cursor-pointer')
+})
+
+it('card does not have cursor-pointer when onSelect is undefined', () => {
+  const { container } = render(<SpeakerCard {...baseProps} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).not.toContain('cursor-pointer')
+})
+
+it('calls onSelect when card is clicked and onSelect is provided', async () => {
   const onSelect = vi.fn()
-  render(<SpeakerCard {...baseProps} onSelect={onSelect} />)
-  await userEvent.click(screen.getByRole('button', { name: 'Currently speaking' }))
+  const { container } = render(<SpeakerCard {...baseProps} onSelect={onSelect} />)
+  await userEvent.click(container.querySelector('.rounded-xl')!)
   expect(onSelect).toHaveBeenCalledTimes(1)
+})
+
+it('does not throw when card is clicked and onSelect is undefined', async () => {
+  const { container } = render(<SpeakerCard {...baseProps} />)
+  await expect(
+    userEvent.click(container.querySelector('.rounded-xl')!)
+  ).resolves.not.toThrow()
 })
 
 it('shows time display in red when elapsed exceeds allotted', () => {
