@@ -80,6 +80,15 @@ it('calls onSelect when Enter is pressed on card and onSelect is provided', asyn
   expect(onSelect).toHaveBeenCalledTimes(1)
 })
 
+it('calls onSelect when Space is pressed on card and onSelect is provided', async () => {
+  const onSelect = vi.fn()
+  const { container } = render(<SpeakerCard {...baseProps} onSelect={onSelect} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  card.focus()
+  await userEvent.keyboard('{ }')
+  expect(onSelect).toHaveBeenCalledTimes(1)
+})
+
 it('renders color dot with correct background color', () => {
   const { container } = render(<SpeakerCard {...baseProps} color="#3b82f6" />)
   const dot = container.querySelector('[data-testid="color-dot"]') as HTMLElement
