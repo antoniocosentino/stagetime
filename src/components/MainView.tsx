@@ -76,10 +76,10 @@ export function MainView() {
               isCurrentSpeaker={currentSpeaker === name}
               allottedSeconds={allotted}
               color={colorMap[name]}
-              onSelect={() =>
-                currentSpeaker === name
-                  ? setCurrentSpeaker(null)
-                  : setCurrentSpeaker(name)
+              onSelect={
+                globalRunning
+                  ? () => setCurrentSpeaker(currentSpeaker === name ? null : name)
+                  : undefined
               }
             />
           )
