@@ -2,7 +2,7 @@ import { useSettingsStore } from './settingsStore'
 
 beforeEach(() => {
   localStorage.clear()
-  useSettingsStore.setState({ names: ['test speaker'], timeLimitMinutes: 15, idleTimeMinutes: 1 })
+  useSettingsStore.setState({ names: ['test speaker'], timeLimitMinutes: 15, idleTimeMinutes: 1, squareModeEnabled: false })
 })
 
 describe('settingsStore', () => {
@@ -57,5 +57,14 @@ describe('settingsStore', () => {
   it('setIdleTimeMinutes updates the idle time', () => {
     useSettingsStore.getState().setIdleTimeMinutes(2)
     expect(useSettingsStore.getState().idleTimeMinutes).toBe(2)
+  })
+
+  it('defaults squareModeEnabled to false', () => {
+    expect(useSettingsStore.getState().squareModeEnabled).toBe(false)
+  })
+
+  it('setSquareModeEnabled updates the flag', () => {
+    useSettingsStore.getState().setSquareModeEnabled(true)
+    expect(useSettingsStore.getState().squareModeEnabled).toBe(true)
   })
 })
