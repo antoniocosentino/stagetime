@@ -16,6 +16,8 @@ export default function App() {
     setIdleTimeMinutes,
     timeLimitMinutes,
     idleTimeMinutes,
+    squareModeEnabled,
+    setSquareModeEnabled,
     shuffleNames,
   } = useSettingsStore()
 
@@ -52,11 +54,13 @@ export default function App() {
           names={names}
           timeLimitMinutes={timeLimitMinutes}
           idleTimeMinutes={idleTimeMinutes}
+          squareModeEnabled={squareModeEnabled}
           onAddName={() => addName(`Speaker ${names.length + 1}`)}
           onRemoveName={removeName}
           onChangeName={handleChangeName}
           onSetTimeLimit={setTimeLimitMinutes}
           onSetIdleTime={setIdleTimeMinutes}
+          onToggleSquareMode={() => setSquareModeEnabled(!squareModeEnabled)}
           onShuffle={shuffleNames}
           onClose={() => setSettingsOpen(false)}
         />

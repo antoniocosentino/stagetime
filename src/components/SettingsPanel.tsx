@@ -4,11 +4,13 @@ interface Props {
   names: string[]
   timeLimitMinutes: number
   idleTimeMinutes: number
+  squareModeEnabled: boolean
   onAddName: () => void
   onRemoveName: (name: string) => void
   onChangeName: (oldName: string, newName: string) => void
   onSetTimeLimit: (minutes: number) => void
   onSetIdleTime: (minutes: number) => void
+  onToggleSquareMode: () => void
   onShuffle: () => void
   onClose: () => void
 }
@@ -17,11 +19,13 @@ export function SettingsPanel({
   names,
   timeLimitMinutes,
   idleTimeMinutes,
+  squareModeEnabled,
   onAddName,
   onRemoveName,
   onChangeName,
   onSetTimeLimit,
   onSetIdleTime,
+  onToggleSquareMode,
   onShuffle,
   onClose,
 }: Props) {
@@ -69,6 +73,28 @@ export function SettingsPanel({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <label htmlFor="square-mode-toggle" className="text-sm font-medium text-gray-700">
+              Square mode
+            </label>
+            <button
+              id="square-mode-toggle"
+              type="button"
+              role="switch"
+              aria-checked={squareModeEnabled}
+              onClick={onToggleSquareMode}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                squareModeEnabled ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  squareModeEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Time limit (minutes)

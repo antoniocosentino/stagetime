@@ -6,11 +6,13 @@ const baseProps = {
   names: ['Alice', 'Bob'],
   timeLimitMinutes: 15,
   idleTimeMinutes: 1,
+  squareModeEnabled: false,
   onAddName: vi.fn(),
   onRemoveName: vi.fn(),
   onChangeName: vi.fn(),
   onSetTimeLimit: vi.fn(),
   onSetIdleTime: vi.fn(),
+  onToggleSquareMode: vi.fn(),
   onShuffle: vi.fn(),
   onClose: vi.fn(),
 }
@@ -141,4 +143,21 @@ it('calls onSetIdleTime with numeric value on change', async () => {
   await userEvent.clear(idleInput)
   await userEvent.type(idleInput, '3')
   expect(onSetIdleTime).toHaveBeenLastCalledWith(3)
+})
+
+it('renders the square mode toggle in the off state', () => {
+  render(<SettingsPanel {...baseProps} />)
+  expect(screen.getByRole('switch', { name: /square mode/i })).toHaveAttribute('aria-checked', 'false')
+})
+
+it('renders the square mode toggle in the on state', () => {
+  render(<SettingsPanel {...baseProps} squareModeEnabled={true} />)
+  expect(screen.getByRole('switch', { name: /square mode/i })).toHaveAttribute('aria-checked', 'true')
+})
+
+it('calls onToggleSquareMode when the toggle is clicked', async () => {
+  const onToggleSquareMode = vi.fn()
+  render(<SettingsPanel {...baseProps} onToggleSquareMode={onToggleSquareMode} />)
+  await userEvent.click(screen.getByRole('switch', { name: /square mode/i }))
+  expect(onToggleSquareMode).toHaveBeenCalledTimes(1)
 })
