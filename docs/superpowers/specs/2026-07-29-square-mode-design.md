@@ -40,7 +40,7 @@ When disabled, cards return to today's layout and the indicator is removed entir
 
 ## Edge cases
 
-- jsdom (the test environment) defaults `window.outerWidth` / `outerHeight` to `0`. Tests must explicitly set these properties before dispatching a `resize` event.
+- jsdom (the test environment) defaults `window.outerWidth` / `outerHeight` to `1024`/`768` and exposes them as plain writable properties, so tests can assign them directly (`window.outerWidth = 900`) before dispatching a `resize` event.
 - Rapid-fire resize events during a drag must not create multiple competing timers — the hide-timer is stored in a `useRef` and cleared before each restart.
 - Toggling Square mode off while a resize is in progress unmounts the indicator immediately (React removes it as soon as `squareModeEnabled` flips), which is acceptable — there's no expectation the indicator persists across the setting being turned off.
 
@@ -51,7 +51,8 @@ When disabled, cards return to today's layout and the indicator is removed entir
 - `SquareModeIndicator.test.tsx` (new):
   - Renders current `outerWidth × outerHeight` text after a `resize` event.
   - Applies the "square" (green) styling when width/height are within 2px of each other, neutral styling otherwise.
-  - Fades out (visibility/opacity state flips) 600ms after the last `resize` event, using fake timers.
+  - Fades out (visibility/opacity state flips) 600ms after the last `resize` event, and does not fade before then, using fake timers.
+  - Resets the hide timer on repeated `resize` events rather than fading out mid-sequence.
   - Removes its `resize` listener on unmount (no state updates / errors after unmount).
 - `MainView.test.tsx` / `SpeakerCard.test.tsx`: `aspect-square` class is present when `squareModeEnabled` is true and absent when false.
 
