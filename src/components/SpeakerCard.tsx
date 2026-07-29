@@ -7,6 +7,7 @@ interface Props {
   isCurrentSpeaker: boolean
   allottedSeconds: number
   color: string
+  square?: boolean
   onSelect?: () => void
 }
 
@@ -16,6 +17,7 @@ export function SpeakerCard({
   isCurrentSpeaker,
   allottedSeconds,
   color,
+  square = false,
   onSelect,
 }: Props) {
   const progress = allottedSeconds > 0 ? elapsed / allottedSeconds : 0
@@ -29,7 +31,7 @@ export function SpeakerCard({
       onKeyDown={onSelect ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSelect() } } : undefined}
       className={`bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm ${
         isCurrentSpeaker ? 'ring-2 ring-blue-500' : ''
-      } ${onSelect ? 'cursor-pointer' : ''}`}
+      } ${onSelect ? 'cursor-pointer' : ''} ${square ? 'aspect-square' : ''}`}
     >
       <div className="flex items-center gap-2">
         <span

@@ -7,7 +7,7 @@ import { timePerSpeaker } from '../utils/time'
 import { COLORS } from '../constants/colors'
 
 export function MainView() {
-  const { names, timeLimitMinutes, idleTimeMinutes } = useSettingsStore()
+  const { names, timeLimitMinutes, idleTimeMinutes, squareModeEnabled } = useSettingsStore()
   const {
     speakers,
     segments,
@@ -76,6 +76,7 @@ export function MainView() {
               isCurrentSpeaker={currentSpeaker === name}
               allottedSeconds={allotted}
               color={colorMap[name]}
+              square={squareModeEnabled}
               onSelect={
                 globalRunning
                   ? () => setCurrentSpeaker(currentSpeaker === name ? null : name)

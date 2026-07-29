@@ -94,3 +94,15 @@ it('renders color dot with correct background color', () => {
   const dot = container.querySelector('[data-testid="color-dot"]') as HTMLElement
   expect(dot.style.backgroundColor).toBe('rgb(59, 130, 246)')
 })
+
+it('applies aspect-square class when square is true', () => {
+  const { container } = render(<SpeakerCard {...baseProps} square={true} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).toContain('aspect-square')
+})
+
+it('does not apply aspect-square class when square is false or omitted', () => {
+  const { container } = render(<SpeakerCard {...baseProps} />)
+  const card = container.querySelector('.rounded-xl') as HTMLElement
+  expect(card.className).not.toContain('aspect-square')
+})
