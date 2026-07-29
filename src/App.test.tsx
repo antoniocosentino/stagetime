@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { act } from 'react'
 import App from './App'
 import { useSettingsStore } from './stores/settingsStore'
@@ -7,7 +7,7 @@ import { useTimerStore } from './stores/timerStore'
 beforeEach(() => {
   localStorage.clear()
   sessionStorage.clear()
-  useSettingsStore.setState({ names: ['Alice'], timeLimitMinutes: 15, idleTimeMinutes: 1 })
+  useSettingsStore.setState({ names: ['Alice'], timeLimitMinutes: 15, idleTimeMinutes: 1, squareModeEnabled: false })
   useTimerStore.setState({
     speakers: {},
     globalRunning: false,
@@ -41,4 +41,18 @@ it('removes the timer entry when a name is removed from settings', () => {
     useSettingsStore.getState().removeName('Alice')
   })
   expect(useTimerStore.getState().speakers['Alice']).toBeUndefined()
+})
+
+it('squares the cards and mounts the resize indicator when square mode is on', () => {
+  useSettingsStore.setState({ squareModeEnabled: true })
+  const { container } = render(<App />)
+  expect(container.querySelector('.rounded-xl')?.className).toContain('aspect-square')
+  expect(screen.getByTestId('square-mode-indicator')).toBeInTheDocument()
+})
+
+it('does not square cards or mount the resize indicator when square mode is off', () => {
+  useSettingsStore.setState({ squareModeEnabled: false })
+  const { container } = render(<App />)
+  expect(container.querySelector('.rounded-xl')?.className).not.toContain('aspect-square')
+  expect(screen.queryByTestId('square-mode-indicator')).not.toBeInTheDocument()
 })

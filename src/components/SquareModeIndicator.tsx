@@ -28,7 +28,8 @@ export function SquareModeIndicator() {
   return (
     <div
       data-testid="square-mode-indicator"
-      className={`fixed bottom-6 left-6 z-50 pointer-events-none rounded-full bg-gray-900/80 px-3 py-1.5 font-mono text-sm shadow-lg transition-opacity duration-[250ms] ${
+      aria-hidden="true"
+      className={`fixed bottom-6 left-6 z-[60] pointer-events-none rounded-full bg-gray-900/80 px-3 py-1.5 font-mono text-sm shadow-lg transition-opacity duration-[250ms] ${
         visible ? 'opacity-100' : 'opacity-0'
       } ${isSquare ? 'text-green-400' : 'text-white'}`}
     >
