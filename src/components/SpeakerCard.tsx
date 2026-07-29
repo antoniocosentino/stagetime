@@ -47,7 +47,7 @@ export function SpeakerCard({
       >
         {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
       </p>
-      <ProgressBar progress={progress} color={color} />
+      <ProgressBar progress={progress} color={color} thick={square} />
     </div>
   )
 }
