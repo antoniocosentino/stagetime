@@ -4,6 +4,7 @@ import { useTimerStore } from './stores/timerStore'
 import { useInterval } from './hooks/useInterval'
 import { MainView } from './components/MainView'
 import { SettingsPanel } from './components/SettingsPanel'
+import { SquareModeIndicator } from './components/SquareModeIndicator'
 
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -49,6 +50,7 @@ export default function App() {
       >
         ⚙
       </button>
+      {squareModeEnabled && <SquareModeIndicator />}
       {settingsOpen && (
         <SettingsPanel
           names={names}
