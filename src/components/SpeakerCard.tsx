@@ -51,7 +51,7 @@ export function SpeakerCard({
       </div>
       <p
         data-testid="time-display"
-        className={`font-mono ${isOvertime ? 'text-red-600' : 'text-gray-600'} ${square ? 'text-[2.625rem]' : 'text-sm'}`}
+        className={`font-mono ${isOvertime ? 'text-red-600' : 'text-gray-600'} ${square ? 'text-2xl' : 'text-sm'}`}
       >
         {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
       </p>
