@@ -38,7 +38,7 @@ export function SpeakerCard({
         <div
           data-testid="card-fill"
           className="absolute inset-y-0 left-0 -z-10 transition-all"
-          style={{ width: `${fillPct}%`, backgroundColor: color }}
+          style={{ width: `${fillPct}%`, backgroundColor: color, opacity: 0.25 }}
         />
       )}
       <div className="flex items-center gap-2">
