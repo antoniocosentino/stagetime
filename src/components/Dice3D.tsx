@@ -13,17 +13,20 @@ const PIP_LAYOUTS: Record<number, [number, number][]> = {
 
 function DiceFace({ value, transform }: { value: number; transform: string }) {
   return (
-    <div
-      className="absolute inset-0 grid grid-cols-3 grid-rows-3 rounded-[12%] border border-gray-300 bg-white p-[14%]"
-      style={{ transform, backfaceVisibility: 'hidden' }}
-    >
-      {PIP_LAYOUTS[value].map(([row, col], i) => (
-        <span
-          key={i}
-          className="rounded-full bg-gray-800"
-          style={{ gridRow: row, gridColumn: col, alignSelf: 'center', justifySelf: 'center', width: '55%', height: '55%' }}
-        />
-      ))}
+    <div className="absolute inset-0" style={{ transform, transformStyle: 'preserve-3d' }}>
+      <div
+        className="absolute inset-0 rounded-[12%] border border-gray-300 bg-white"
+        style={{ transform: 'translateZ(-1px)' }}
+      />
+      <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 p-[14%]">
+        {PIP_LAYOUTS[value].map(([row, col], i) => (
+          <span
+            key={i}
+            className="rounded-full bg-gray-800"
+            style={{ gridRow: row, gridColumn: col, alignSelf: 'center', justifySelf: 'center', width: '55%', height: '55%' }}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -32,10 +35,7 @@ export function Dice3D({ size }: Props) {
   const half = size / 2
   return (
     <div data-testid="dice-3d" className="relative" style={{ width: size, height: size, perspective: 600 }}>
-      <div
-        className="relative w-full h-full animate-[dice-roll_1.1s_linear_infinite]"
-        style={{ transformStyle: 'preserve-3d' }}
-      >
+      <div className="dice-cube relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
         <DiceFace value={1} transform={`translateZ(${half}px)`} />
         <DiceFace value={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
         <DiceFace value={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
