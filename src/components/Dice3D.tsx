@@ -43,12 +43,12 @@ export function Dice3D({ size, spinning = true }: Props) {
           transform: spinning ? undefined : 'rotateX(-20deg) rotateY(25deg)',
         }}
       >
-        <DiceFace value={1} transform={`translateZ(${half}px)`} />
-        <DiceFace value={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
-        <DiceFace value={3} transform={`rotateY(90deg) translateZ(${half}px)`} />
-        <DiceFace value={4} transform={`rotateY(-90deg) translateZ(${half}px)`} />
-        <DiceFace value={2} transform={`rotateX(90deg) translateZ(${half}px)`} />
-        <DiceFace value={5} transform={`rotateX(-90deg) translateZ(${half}px)`} />
+        <DiceFace value={3} transform={`translateZ(${half}px)`} />
+        <DiceFace value={4} transform={`rotateY(180deg) translateZ(${half}px)`} />
+        <DiceFace value={1} transform={`rotateY(90deg) translateZ(${half}px)`} />
+        <DiceFace value={6} transform={`rotateY(-90deg) translateZ(${half}px)`} />
+        <DiceFace value={5} transform={`rotateX(90deg) translateZ(${half}px)`} />
+        <DiceFace value={2} transform={`rotateX(-90deg) translateZ(${half}px)`} />
       </div>
     </div>
   )
