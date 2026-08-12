@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Dice3D } from './Dice3D'
 
 interface Props {
   names: string[]
@@ -53,12 +54,10 @@ export function SettingsPanel({
   }, [names.length])
 
   const [shuffling, setShuffling] = useState(false)
-  const shuffleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const shuffleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     return () => {
-      if (shuffleIntervalRef.current) clearInterval(shuffleIntervalRef.current)
       if (shuffleTimeoutRef.current) clearTimeout(shuffleTimeoutRef.current)
     }
   }, [])
@@ -67,21 +66,21 @@ export function SettingsPanel({
     if (shuffling) return
     setShuffling(true)
     onShuffle()
-    shuffleIntervalRef.current = setInterval(onShuffle, 150)
     shuffleTimeoutRef.current = setTimeout(() => {
-      if (shuffleIntervalRef.current) {
-        clearInterval(shuffleIntervalRef.current)
-        shuffleIntervalRef.current = null
-      }
       setShuffling(false)
     }, 3000)
   }
 
   return (
     <div
-      className={`fixed inset-0 bg-black/40 flex justify-end z-50 ${closing ? 'animate-[fade-out_0.25s_ease-in_forwards]' : 'animate-[fade-in_0.2s_ease-out]'}`}
+      className={`fixed inset-0 bg-black/40 flex justify-end z-50 ${shuffling ? 'backdrop-blur-md' : ''} ${closing ? 'animate-[fade-out_0.25s_ease-in_forwards]' : 'animate-[fade-in_0.2s_ease-out]'}`}
       onClick={handleClose}
     >
+      {shuffling && (
+        <div className="flex-1 flex items-center justify-center pointer-events-none">
+          <Dice3D size={140} />
+        </div>
+      )}
       <div
         className={`bg-white w-full max-w-sm h-full flex flex-col shadow-xl ${closing ? 'animate-[slide-out-right_0.25s_ease-in_forwards]' : 'animate-[slide-in-right_0.25s_ease-out]'}`}
         onClick={(e) => e.stopPropagation()}
@@ -195,15 +194,14 @@ export function SettingsPanel({
                 shuffling ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-400 hover:text-blue-600'
               }`}
             >
-              <span className="inline-block [perspective:600px]">
-                <span
-                  data-testid="shuffle-dice"
-                  className={`inline-block ${shuffling ? 'animate-[dice-spin_0.6s_linear_infinite]' : ''}`}
-                >
-                  🎲
+              {shuffling ? (
+                <span className="inline-flex items-center gap-2">
+                  <Dice3D size={20} />
+                  Shuffle order
                 </span>
-              </span>{' '}
-              Shuffle order
+              ) : (
+                <>🎲 Shuffle order</>
+              )}
             </button>
           </div>
         </div>

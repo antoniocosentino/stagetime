@@ -83,7 +83,7 @@ it('calls onShuffle when shuffle button is clicked', async () => {
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
-it('disables the shuffle button and keeps calling onShuffle while shuffling', () => {
+it('disables the shuffle button and shows the big dice overlay while shuffling, without reshuffling again', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
@@ -92,15 +92,17 @@ it('disables the shuffle button and keeps calling onShuffle while shuffling', ()
   fireEvent.click(button)
   expect(onShuffle).toHaveBeenCalledTimes(1)
   expect(button).toBeDisabled()
+  expect(screen.getAllByTestId('dice-3d')).toHaveLength(2)
+  expect(document.querySelector('.bg-black\\/40')?.className).toContain('backdrop-blur-md')
 
   act(() => {
     vi.advanceTimersByTime(1500)
   })
-  expect(onShuffle.mock.calls.length).toBeGreaterThan(1)
+  expect(onShuffle).toHaveBeenCalledTimes(1)
   expect(button).toBeDisabled()
 })
 
-it('re-enables the shuffle button and stops shuffling after 3 seconds', () => {
+it('re-enables the shuffle button and hides the dice overlay after 3 seconds', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
@@ -111,12 +113,13 @@ it('re-enables the shuffle button and stops shuffling after 3 seconds', () => {
     vi.advanceTimersByTime(3000)
   })
   expect(button).not.toBeDisabled()
+  expect(screen.queryAllByTestId('dice-3d')).toHaveLength(0)
+  expect(document.querySelector('.bg-black\\/40')?.className).not.toContain('backdrop-blur-md')
 
-  const callsAtStop = onShuffle.mock.calls.length
   act(() => {
     vi.advanceTimersByTime(1000)
   })
-  expect(onShuffle.mock.calls.length).toBe(callsAtStop)
+  expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
 it('ignores additional clicks while already shuffling', () => {
