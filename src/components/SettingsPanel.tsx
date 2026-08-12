@@ -90,7 +90,7 @@ export function SettingsPanel({
           <button
             aria-label="Close"
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-800 transition-colors"
+            className="text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
           >
             ✕
           </button>
@@ -107,7 +107,7 @@ export function SettingsPanel({
               role="switch"
               aria-checked={squareModeEnabled}
               onClick={onToggleSquareMode}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                 squareModeEnabled ? 'bg-blue-500' : 'bg-gray-300'
               }`}
             >
@@ -173,7 +173,7 @@ export function SettingsPanel({
                   <button
                     aria-label={`Remove ${name}`}
                     onClick={() => onRemoveName(name)}
-                    className="text-gray-400 hover:text-red-600 transition-colors"
+                    className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                   >
                     ✕
                   </button>
