@@ -64,12 +64,13 @@ export function SpeakerCard({
               className="transition-all"
             />
           </svg>
-          <p
+          <div
             data-testid="time-display"
-            className={`absolute inset-0 flex items-center justify-center font-mono text-sm ${isOvertime ? 'text-red-600' : 'text-gray-700'}`}
+            className={`absolute inset-0 flex flex-col items-center justify-center font-mono leading-tight ${isOvertime ? 'text-red-600' : 'text-gray-700'}`}
           >
-            {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
-          </p>
+            <span className="text-3xl font-semibold">{formatSeconds(elapsed)}</span>
+            <span className="text-lg">/ {formatSeconds(allottedSeconds)}</span>
+          </div>
         </div>
       ) : (
         <>
