@@ -11,6 +11,10 @@ interface Props {
   onSelect?: () => void
 }
 
+const RING_RADIUS = 42
+const RING_STROKE = 10
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
+
 export function SpeakerCard({
   name,
   elapsed,
@@ -22,7 +26,7 @@ export function SpeakerCard({
 }: Props) {
   const progress = allottedSeconds > 0 ? elapsed / allottedSeconds : 0
   const isOvertime = allottedSeconds > 0 && elapsed > allottedSeconds
-  const fillPct = Math.min(progress * 100, 100)
+  const ringOffset = RING_CIRCUMFERENCE * (1 - Math.min(progress, 1))
 
   return (
     <div
@@ -32,30 +36,52 @@ export function SpeakerCard({
       onKeyDown={onSelect ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onSelect() } } : undefined}
       className={`bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm ${
         isCurrentSpeaker ? 'ring-2 ring-blue-500' : ''
-      } ${onSelect ? 'cursor-pointer' : ''} ${square ? 'aspect-square relative z-0 overflow-hidden' : ''}`}
+      } ${onSelect ? 'cursor-pointer' : ''} ${square ? 'aspect-square' : ''}`}
     >
-      {square && (
-        <div
-          data-testid="card-fill"
-          className="absolute inset-y-0 left-0 -z-10 transition-all"
-          style={{ width: `${fillPct}%`, backgroundColor: color, opacity: 0.25 }}
-        />
-      )}
       <div className="flex items-center gap-2">
         <span
           data-testid="color-dot"
-          className={`inline-block rounded-full flex-shrink-0 ${square ? 'w-6 h-6 border-2 border-white' : 'w-3 h-3'}`}
+          className={`inline-block rounded-full flex-shrink-0 ${square ? 'w-6 h-6' : 'w-3 h-3'}`}
           style={{ backgroundColor: color }}
         />
         <h2 className={`font-semibold text-gray-800 truncate ${square ? 'text-[2rem]' : ''}`}>{name}</h2>
       </div>
-      <p
-        data-testid="time-display"
-        className={`font-mono ${isOvertime ? 'text-red-600' : 'text-gray-600'} ${square ? 'text-2xl' : 'text-sm'}`}
-      >
-        {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
-      </p>
-      {!square && <ProgressBar progress={progress} color={color} />}
+      {square ? (
+        <div className="flex-1 relative flex items-center justify-center">
+          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+            <circle cx="50" cy="50" r={RING_RADIUS} fill="none" stroke="#e5e7eb" strokeWidth={RING_STROKE} />
+            <circle
+              data-testid="ring-progress"
+              cx="50"
+              cy="50"
+              r={RING_RADIUS}
+              fill="none"
+              stroke={color}
+              strokeWidth={RING_STROKE}
+              strokeLinecap="round"
+              strokeDasharray={RING_CIRCUMFERENCE}
+              strokeDashoffset={ringOffset}
+              className="transition-all"
+            />
+          </svg>
+          <p
+            data-testid="time-display"
+            className={`absolute inset-0 flex items-center justify-center font-mono text-sm ${isOvertime ? 'text-red-600' : 'text-gray-700'}`}
+          >
+            {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
+          </p>
+        </div>
+      ) : (
+        <>
+          <p
+            data-testid="time-display"
+            className={`text-sm font-mono ${isOvertime ? 'text-red-600' : 'text-gray-600'}`}
+          >
+            {formatSeconds(elapsed)} / {formatSeconds(allottedSeconds)}
+          </p>
+          <ProgressBar progress={progress} color={color} />
+        </>
+      )}
     </div>
   )
 }
