@@ -182,7 +182,7 @@ export function SettingsPanel({
             </div>
             <button
               onClick={onAddName}
-              className="mt-3 w-full rounded-lg border-2 border-dashed border-gray-300 py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors"
+              className="mt-3 w-full rounded-lg border-2 border-dashed border-gray-300 py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors cursor-pointer"
             >
               + Add speaker
             </button>
@@ -191,7 +191,7 @@ export function SettingsPanel({
               onClick={handleShuffleClick}
               disabled={shuffling}
               className={`mt-2 w-full rounded-lg border-2 border-dashed border-gray-300 py-2 text-sm text-gray-500 transition-colors ${
-                shuffling ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-400 hover:text-blue-600'
+                shuffling ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-400 hover:text-blue-600 cursor-pointer'
               }`}
             >
               <span className="inline-flex items-center gap-2">
