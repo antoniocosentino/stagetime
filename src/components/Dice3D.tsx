@@ -38,7 +38,10 @@ export function Dice3D({ size, spinning = true }: Props) {
     <div data-testid="dice-3d" className="relative" style={{ width: size, height: size, perspective: 600 }}>
       <div
         className={`relative w-full h-full ${spinning ? 'dice-cube' : ''}`}
-        style={{ transformStyle: 'preserve-3d' }}
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: spinning ? undefined : 'rotateX(-20deg) rotateY(25deg)',
+        }}
       >
         <DiceFace value={1} transform={`translateZ(${half}px)`} />
         <DiceFace value={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
