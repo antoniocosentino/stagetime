@@ -1,5 +1,6 @@
 interface Props {
   size: number
+  spinning?: boolean
 }
 
 const PIP_LAYOUTS: Record<number, [number, number][]> = {
@@ -31,11 +32,14 @@ function DiceFace({ value, transform }: { value: number; transform: string }) {
   )
 }
 
-export function Dice3D({ size }: Props) {
+export function Dice3D({ size, spinning = true }: Props) {
   const half = size / 2
   return (
     <div data-testid="dice-3d" className="relative" style={{ width: size, height: size, perspective: 600 }}>
-      <div className="dice-cube relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
+      <div
+        className={`relative w-full h-full ${spinning ? 'dice-cube' : ''}`}
+        style={{ transformStyle: 'preserve-3d' }}
+      >
         <DiceFace value={1} transform={`translateZ(${half}px)`} />
         <DiceFace value={6} transform={`rotateY(180deg) translateZ(${half}px)`} />
         <DiceFace value={3} transform={`rotateY(90deg) translateZ(${half}px)`} />

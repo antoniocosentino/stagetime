@@ -76,6 +76,22 @@ it('calls onSetTimeLimit with numeric value on change', async () => {
   expect(onSetTimeLimit).toHaveBeenLastCalledWith(20)
 })
 
+it('shows a static (non-spinning) dice on the button when idle, spinning while shuffling', () => {
+  vi.useFakeTimers()
+  render(<SettingsPanel {...baseProps} />)
+  const button = screen.getByRole('button', { name: /shuffle order/i })
+  const buttonDice = screen.getByTestId('dice-3d')
+  expect(buttonDice.firstElementChild?.className).not.toContain('dice-cube')
+
+  fireEvent.click(button)
+  expect(buttonDice.firstElementChild?.className).toContain('dice-cube')
+
+  act(() => {
+    vi.advanceTimersByTime(2000)
+  })
+  expect(buttonDice.firstElementChild?.className).not.toContain('dice-cube')
+})
+
 it('calls onShuffle only after the 2-second animation completes', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
@@ -119,7 +135,7 @@ it('re-enables the shuffle button and hides the dice overlay after 2 seconds', (
     vi.advanceTimersByTime(2000)
   })
   expect(button).not.toBeDisabled()
-  expect(screen.queryAllByTestId('dice-3d')).toHaveLength(0)
+  expect(screen.getAllByTestId('dice-3d')).toHaveLength(1)
   expect(document.querySelector('.bg-black\\/40')?.className).not.toContain('backdrop-blur-md')
   expect(onShuffle).toHaveBeenCalledTimes(1)
 

@@ -194,14 +194,10 @@ export function SettingsPanel({
                 shuffling ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-400 hover:text-blue-600'
               }`}
             >
-              {shuffling ? (
-                <span className="inline-flex items-center gap-2">
-                  <Dice3D size={20} />
-                  Shuffle order
-                </span>
-              ) : (
-                <>🎲 Shuffle order</>
-              )}
+              <span className="inline-flex items-center gap-2">
+                <Dice3D size={16} spinning={shuffling} />
+                Shuffle order
+              </span>
             </button>
           </div>
         </div>
