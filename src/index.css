@@ -19,3 +19,8 @@
   from { opacity: 1; }
   to   { opacity: 0; }
 }
+
+@keyframes dice-spin {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(360deg); }
+}

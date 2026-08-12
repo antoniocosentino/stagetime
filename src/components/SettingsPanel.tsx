@@ -52,6 +52,31 @@ export function SettingsPanel({
     prevLengthRef.current = names.length
   }, [names.length])
 
+  const [shuffling, setShuffling] = useState(false)
+  const shuffleIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const shuffleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (shuffleIntervalRef.current) clearInterval(shuffleIntervalRef.current)
+      if (shuffleTimeoutRef.current) clearTimeout(shuffleTimeoutRef.current)
+    }
+  }, [])
+
+  function handleShuffleClick() {
+    if (shuffling) return
+    setShuffling(true)
+    onShuffle()
+    shuffleIntervalRef.current = setInterval(onShuffle, 150)
+    shuffleTimeoutRef.current = setTimeout(() => {
+      if (shuffleIntervalRef.current) {
+        clearInterval(shuffleIntervalRef.current)
+        shuffleIntervalRef.current = null
+      }
+      setShuffling(false)
+    }, 3000)
+  }
+
   return (
     <div
       className={`fixed inset-0 bg-black/40 flex justify-end z-50 ${closing ? 'animate-[fade-out_0.25s_ease-in_forwards]' : 'animate-[fade-in_0.2s_ease-out]'}`}
@@ -164,10 +189,21 @@ export function SettingsPanel({
             </button>
             <button
               aria-label="Shuffle order"
-              onClick={onShuffle}
-              className="mt-2 w-full rounded-lg border-2 border-dashed border-gray-300 py-2 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors"
+              onClick={handleShuffleClick}
+              disabled={shuffling}
+              className={`mt-2 w-full rounded-lg border-2 border-dashed border-gray-300 py-2 text-sm text-gray-500 transition-colors ${
+                shuffling ? 'opacity-60 cursor-not-allowed' : 'hover:border-blue-400 hover:text-blue-600'
+              }`}
             >
-              🎲 Shuffle order
+              <span className="inline-block [perspective:600px]">
+                <span
+                  data-testid="shuffle-dice"
+                  className={`inline-block ${shuffling ? 'animate-[dice-spin_0.6s_linear_infinite]' : ''}`}
+                >
+                  🎲
+                </span>
+              </span>{' '}
+              Shuffle order
             </button>
           </div>
         </div>

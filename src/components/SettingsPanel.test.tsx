@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { act } from 'react'
 import userEvent from '@testing-library/user-event'
 import { SettingsPanel } from './SettingsPanel'
 
@@ -79,6 +80,54 @@ it('calls onShuffle when shuffle button is clicked', async () => {
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
   await userEvent.click(screen.getByRole('button', { name: /shuffle order/i }))
+  expect(onShuffle).toHaveBeenCalledTimes(1)
+})
+
+it('disables the shuffle button and keeps calling onShuffle while shuffling', () => {
+  vi.useFakeTimers()
+  const onShuffle = vi.fn()
+  render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
+  const button = screen.getByRole('button', { name: /shuffle order/i })
+
+  fireEvent.click(button)
+  expect(onShuffle).toHaveBeenCalledTimes(1)
+  expect(button).toBeDisabled()
+
+  act(() => {
+    vi.advanceTimersByTime(1500)
+  })
+  expect(onShuffle.mock.calls.length).toBeGreaterThan(1)
+  expect(button).toBeDisabled()
+})
+
+it('re-enables the shuffle button and stops shuffling after 3 seconds', () => {
+  vi.useFakeTimers()
+  const onShuffle = vi.fn()
+  render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
+  const button = screen.getByRole('button', { name: /shuffle order/i })
+
+  fireEvent.click(button)
+  act(() => {
+    vi.advanceTimersByTime(3000)
+  })
+  expect(button).not.toBeDisabled()
+
+  const callsAtStop = onShuffle.mock.calls.length
+  act(() => {
+    vi.advanceTimersByTime(1000)
+  })
+  expect(onShuffle.mock.calls.length).toBe(callsAtStop)
+})
+
+it('ignores additional clicks while already shuffling', () => {
+  vi.useFakeTimers()
+  const onShuffle = vi.fn()
+  render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
+  const button = screen.getByRole('button', { name: /shuffle order/i })
+
+  fireEvent.click(button)
+  fireEvent.click(button)
+  fireEvent.click(button)
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
