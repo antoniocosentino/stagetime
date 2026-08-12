@@ -76,21 +76,27 @@ it('calls onSetTimeLimit with numeric value on change', async () => {
   expect(onSetTimeLimit).toHaveBeenLastCalledWith(20)
 })
 
-it('calls onShuffle when shuffle button is clicked', async () => {
+it('calls onShuffle only after the 3-second animation completes', () => {
+  vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
-  await userEvent.click(screen.getByRole('button', { name: /shuffle order/i }))
+  fireEvent.click(screen.getByRole('button', { name: /shuffle order/i }))
+  expect(onShuffle).not.toHaveBeenCalled()
+
+  act(() => {
+    vi.advanceTimersByTime(3000)
+  })
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 
-it('disables the shuffle button and shows the big dice overlay while shuffling, without reshuffling again', () => {
+it('disables the shuffle button and shows the big dice overlay while shuffling, without reordering yet', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
   const button = screen.getByRole('button', { name: /shuffle order/i })
 
   fireEvent.click(button)
-  expect(onShuffle).toHaveBeenCalledTimes(1)
+  expect(onShuffle).not.toHaveBeenCalled()
   expect(button).toBeDisabled()
   expect(screen.getAllByTestId('dice-3d')).toHaveLength(2)
   expect(document.querySelector('.bg-black\\/40')?.className).toContain('backdrop-blur-md')
@@ -98,7 +104,7 @@ it('disables the shuffle button and shows the big dice overlay while shuffling, 
   act(() => {
     vi.advanceTimersByTime(1500)
   })
-  expect(onShuffle).toHaveBeenCalledTimes(1)
+  expect(onShuffle).not.toHaveBeenCalled()
   expect(button).toBeDisabled()
 })
 
@@ -115,6 +121,7 @@ it('re-enables the shuffle button and hides the dice overlay after 3 seconds', (
   expect(button).not.toBeDisabled()
   expect(screen.queryAllByTestId('dice-3d')).toHaveLength(0)
   expect(document.querySelector('.bg-black\\/40')?.className).not.toContain('backdrop-blur-md')
+  expect(onShuffle).toHaveBeenCalledTimes(1)
 
   act(() => {
     vi.advanceTimersByTime(1000)
@@ -131,6 +138,10 @@ it('ignores additional clicks while already shuffling', () => {
   fireEvent.click(button)
   fireEvent.click(button)
   fireEvent.click(button)
+
+  act(() => {
+    vi.advanceTimersByTime(3000)
+  })
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
 

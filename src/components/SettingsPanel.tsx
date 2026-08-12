@@ -65,8 +65,8 @@ export function SettingsPanel({
   function handleShuffleClick() {
     if (shuffling) return
     setShuffling(true)
-    onShuffle()
     shuffleTimeoutRef.current = setTimeout(() => {
+      onShuffle()
       setShuffling(false)
     }, 3000)
   }
