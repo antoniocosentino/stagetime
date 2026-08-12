@@ -76,7 +76,7 @@ it('calls onSetTimeLimit with numeric value on change', async () => {
   expect(onSetTimeLimit).toHaveBeenLastCalledWith(20)
 })
 
-it('calls onShuffle only after the 3-second animation completes', () => {
+it('calls onShuffle only after the 2-second animation completes', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
@@ -84,7 +84,7 @@ it('calls onShuffle only after the 3-second animation completes', () => {
   expect(onShuffle).not.toHaveBeenCalled()
 
   act(() => {
-    vi.advanceTimersByTime(3000)
+    vi.advanceTimersByTime(2000)
   })
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
@@ -108,7 +108,7 @@ it('disables the shuffle button and shows the big dice overlay while shuffling, 
   expect(button).toBeDisabled()
 })
 
-it('re-enables the shuffle button and hides the dice overlay after 3 seconds', () => {
+it('re-enables the shuffle button and hides the dice overlay after 2 seconds', () => {
   vi.useFakeTimers()
   const onShuffle = vi.fn()
   render(<SettingsPanel {...baseProps} onShuffle={onShuffle} />)
@@ -116,7 +116,7 @@ it('re-enables the shuffle button and hides the dice overlay after 3 seconds', (
 
   fireEvent.click(button)
   act(() => {
-    vi.advanceTimersByTime(3000)
+    vi.advanceTimersByTime(2000)
   })
   expect(button).not.toBeDisabled()
   expect(screen.queryAllByTestId('dice-3d')).toHaveLength(0)
@@ -140,7 +140,7 @@ it('ignores additional clicks while already shuffling', () => {
   fireEvent.click(button)
 
   act(() => {
-    vi.advanceTimersByTime(3000)
+    vi.advanceTimersByTime(2000)
   })
   expect(onShuffle).toHaveBeenCalledTimes(1)
 })
