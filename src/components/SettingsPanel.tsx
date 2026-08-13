@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Dice3D } from './Dice3D'
+import { useShuffleAnimation } from '../hooks/useShuffleAnimation'
 
 interface Props {
   names: string[]
@@ -53,23 +54,7 @@ export function SettingsPanel({
     prevLengthRef.current = names.length
   }, [names.length])
 
-  const [shuffling, setShuffling] = useState(false)
-  const shuffleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (shuffleTimeoutRef.current) clearTimeout(shuffleTimeoutRef.current)
-    }
-  }, [])
-
-  function handleShuffleClick() {
-    if (shuffling) return
-    setShuffling(true)
-    shuffleTimeoutRef.current = setTimeout(() => {
-      onShuffle()
-      setShuffling(false)
-    }, 2000)
-  }
+  const { shuffling, trigger: handleShuffleClick } = useShuffleAnimation(onShuffle)
 
   return (
     <div
