@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from 'react'
 export function useShuffleAnimation(onShuffle: () => void) {
   const [shuffling, setShuffling] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isShufflingRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -27,17 +28,21 @@ export function useShuffleAnimation(onShuffle: () => void) {
   }, [])
 
   function trigger() {
-    if (shuffling) return
+    if (isShufflingRef.current) return
+    isShufflingRef.current = true
     setShuffling(true)
     timeoutRef.current = setTimeout(() => {
       onShuffle()
       setShuffling(false)
+      isShufflingRef.current = false
     }, 2000)
   }
 
   return { shuffling, trigger }
 }
 ```
+
+Note the re-entrancy guard reads `isShufflingRef` (a ref), not the `shuffling` state — reading state directly would be stale within a single synchronous batch (e.g. multiple `trigger()` calls before a re-render), which could let `onShuffle` fire more than once.
 
 ### `SettingsPanel`
 
@@ -80,7 +85,7 @@ No other behavior changes — same overlay, same button, same 2s delay.
 )}
 ```
 
-- The gear button and its `settingsOpen` block are unchanged.
+- The `settingsOpen` block is unchanged. The gear button additionally gets `disabled={shuffling}` (see Edge Cases below).
 
 ### Interaction with the settings panel
 
@@ -89,7 +94,7 @@ No other behavior changes — same overlay, same button, same 2s delay.
 ## Edge Cases
 
 - **Rapid double-click on the new button:** `trigger()` no-ops while `shuffling` is already true (same guard as today), and the button is also `disabled` during that window.
-- **Opening settings mid-animation:** not reachable — the floating dice button (and therefore triggering a new animation from the main screen) is hidden whenever settings is open, and the gear button itself has no such restriction today, so this spec doesn't change that. If a shuffle animation is somehow still in flight when settings opens (not currently possible via the UI), the fullscreen overlay's `!settingsOpen` guard means the overlay simply stops rendering — the pending `setTimeout` still calls `shuffleNames` on schedule.
+- **Opening settings mid-animation:** the gear button is `disabled={shuffling}`, so it cannot be clicked while a main-screen shuffle animation is in flight — this prevents the settings panel from opening (and truncating the overlay, or racing a second `useShuffleAnimation` instance) while `shuffling` is `true`.
 
 ## Testing
 

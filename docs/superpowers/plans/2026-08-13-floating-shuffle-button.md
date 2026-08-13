@@ -126,6 +126,7 @@ import { useEffect, useRef, useState } from 'react'
 export function useShuffleAnimation(onShuffle: () => void) {
   const [shuffling, setShuffling] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isShufflingRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -134,17 +135,21 @@ export function useShuffleAnimation(onShuffle: () => void) {
   }, [])
 
   function trigger() {
-    if (shuffling) return
+    if (isShufflingRef.current) return
+    isShufflingRef.current = true
     setShuffling(true)
     timeoutRef.current = setTimeout(() => {
       onShuffle()
       setShuffling(false)
+      isShufflingRef.current = false
     }, 2000)
   }
 
   return { shuffling, trigger }
 }
 ```
+
+Note: the re-entrancy guard uses `isShufflingRef` (a ref), not the `shuffling` state directly — state reads can be stale within a single synchronous batch, which would let multiple `trigger()` calls each schedule their own timeout and call `onShuffle()` more than once.
 
 - [ ] **Step 4: Run tests to verify they pass**
 

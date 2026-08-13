@@ -85,3 +85,21 @@ it('hides the floating shuffle button while settings is open', async () => {
   const shuffleButtons = screen.getAllByRole('button', { name: /shuffle order/i })
   expect(shuffleButtons).toHaveLength(1)
 })
+
+it('disables the settings gear button while the floating shuffle animation is running', () => {
+  vi.useFakeTimers()
+  render(<App />)
+  const gearButton = screen.getByRole('button', { name: /open settings/i })
+  const shuffleButton = screen.getByRole('button', { name: /shuffle order/i })
+
+  expect(gearButton).not.toBeDisabled()
+
+  fireEvent.click(shuffleButton)
+  expect(gearButton).toBeDisabled()
+
+  act(() => {
+    vi.advanceTimersByTime(2000)
+  })
+  expect(gearButton).not.toBeDisabled()
+  vi.useRealTimers()
+})

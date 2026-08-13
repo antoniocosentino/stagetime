@@ -49,7 +49,10 @@ export default function App() {
       <button
         aria-label="Open settings"
         onClick={() => setSettingsOpen(true)}
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-xl transition-all cursor-pointer"
+        disabled={shuffling}
+        className={`fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:shadow-xl transition-all ${
+          shuffling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+        }`}
       >
         ⚙
       </button>
