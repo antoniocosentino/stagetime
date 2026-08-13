@@ -1,10 +1,18 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { act } from 'react'
 import App from './App'
 import { useSettingsStore } from './stores/settingsStore'
 import { useTimerStore } from './stores/timerStore'
+import { generateRecapImageBlob, saveRecapImage } from './utils/recapImage'
+
+vi.mock('./utils/recapImage', () => ({
+  generateRecapImageBlob: vi.fn(async () => new Blob(['fake'], { type: 'image/png' })),
+  saveRecapImage: vi.fn(async () => undefined),
+}))
 
 beforeEach(() => {
+  vi.mocked(generateRecapImageBlob).mockClear()
+  vi.mocked(saveRecapImage).mockClear()
   localStorage.clear()
   sessionStorage.clear()
   useSettingsStore.setState({ names: ['Alice'], timeLimitMinutes: 15, idleTimeMinutes: 1, squareModeEnabled: false })
@@ -102,4 +110,50 @@ it('disables the settings gear button while the floating shuffle animation is ru
   })
   expect(gearButton).not.toBeDisabled()
   vi.useRealTimers()
+})
+
+it('does not render the export recap button when no time has elapsed', () => {
+  render(<App />)
+  expect(screen.queryByRole('button', { name: /export recap/i })).not.toBeInTheDocument()
+})
+
+it('renders the export recap button once the timer has elapsed time', () => {
+  useTimerStore.setState({ globalElapsed: 30 })
+  render(<App />)
+  expect(screen.getByRole('button', { name: /export recap/i })).toBeInTheDocument()
+})
+
+it('hides the export recap button while settings is open', () => {
+  useTimerStore.setState({ globalElapsed: 30 })
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /open settings/i }))
+  expect(screen.queryByRole('button', { name: /export recap/i })).not.toBeInTheDocument()
+})
+
+it('disables the export recap button while the shuffle animation is running', () => {
+  vi.useFakeTimers()
+  useTimerStore.setState({ globalElapsed: 30 })
+  render(<App />)
+  const shuffleButton = screen.getByRole('button', { name: /shuffle order/i })
+  const exportButton = screen.getByRole('button', { name: /export recap/i })
+  expect(exportButton).not.toBeDisabled()
+
+  fireEvent.click(shuffleButton)
+  expect(exportButton).toBeDisabled()
+
+  act(() => {
+    vi.advanceTimersByTime(2000)
+  })
+  expect(exportButton).not.toBeDisabled()
+  vi.useRealTimers()
+})
+
+it('generates and saves a recap image when the export recap button is clicked', async () => {
+  useTimerStore.setState({ globalElapsed: 30 })
+  render(<App />)
+
+  fireEvent.click(screen.getByRole('button', { name: /export recap/i }))
+
+  await waitFor(() => expect(saveRecapImage).toHaveBeenCalledTimes(1))
+  expect(generateRecapImageBlob).toHaveBeenCalledTimes(1)
 })

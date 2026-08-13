@@ -1,9 +1,5 @@
 import { formatSeconds } from '../utils/time'
-
-export interface RenderedSegment {
-  duration: number
-  color?: string
-}
+import type { RenderedSegment } from '../utils/segments'
 
 interface Props {
   totalSeconds: number

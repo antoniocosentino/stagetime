@@ -1,10 +1,9 @@
 import { GlobalTimer } from './GlobalTimer'
-import type { RenderedSegment } from './GlobalTimer'
 import { SpeakerCard } from './SpeakerCard'
 import { useSettingsStore } from '../stores/settingsStore'
 import { useTimerStore } from '../stores/timerStore'
 import { timePerSpeaker } from '../utils/time'
-import { COLORS } from '../constants/colors'
+import { buildColorMap, buildRenderedSegments } from '../utils/segments'
 
 export function MainView() {
   const { names, timeLimitMinutes, idleTimeMinutes, squareModeEnabled } = useSettingsStore()
@@ -28,30 +27,11 @@ export function MainView() {
       ? timePerSpeaker(timeLimitMinutes, idleTimeMinutes, names.length)
       : totalSeconds
 
-  const colorMap: Record<string, string> = {}
-  names.forEach((name, i) => {
-    colorMap[name] = COLORS[i % COLORS.length]
-  })
-
-  const renderedSegments: RenderedSegment[] = segments.map((seg) =>
-    seg.type === 'idle'
-      ? { duration: seg.duration }
-      : { duration: seg.duration, color: colorMap[seg.name] ?? '#6b7280' }
+  const colorMap = buildColorMap(names)
+  const renderedSegments = buildRenderedSegments(
+    { segments, globalRunning, globalElapsed, currentSpeaker, activeSegmentStart, idleSegmentStart },
+    colorMap
   )
-
-  if (globalRunning) {
-    if (currentSpeaker !== null && activeSegmentStart !== null) {
-      const duration = globalElapsed - activeSegmentStart
-      if (duration > 0) {
-        renderedSegments.push({ duration, color: colorMap[currentSpeaker] ?? '#6b7280' })
-      }
-    } else if (currentSpeaker === null && idleSegmentStart !== null) {
-      const duration = globalElapsed - idleSegmentStart
-      if (duration > 0) {
-        renderedSegments.push({ duration })
-      }
-    }
-  }
 
   return (
     <main className="flex-1 p-4 flex flex-col gap-6 overflow-y-auto">
