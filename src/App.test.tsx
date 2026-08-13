@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { act } from 'react'
 import App from './App'
 import { useSettingsStore } from './stores/settingsStore'
@@ -55,4 +55,33 @@ it('does not square cards or mount the resize indicator when square mode is off'
   const { container } = render(<App />)
   expect(container.querySelector('.rounded-xl')?.className).not.toContain('aspect-square')
   expect(screen.queryByTestId('square-mode-indicator')).not.toBeInTheDocument()
+})
+
+it('renders a floating shuffle button next to the settings button', () => {
+  render(<App />)
+  expect(screen.getByRole('button', { name: /shuffle order/i })).toBeInTheDocument()
+})
+
+it('shows the fullscreen dice overlay and calls shuffleNames after clicking the floating shuffle button', () => {
+  vi.useFakeTimers()
+  render(<App />)
+  const button = screen.getByRole('button', { name: /shuffle order/i })
+
+  fireEvent.click(button)
+  expect(button).toBeDisabled()
+  expect(document.querySelector('.bg-black\\/40')?.className).toContain('backdrop-blur-md')
+
+  act(() => {
+    vi.advanceTimersByTime(2000)
+  })
+  expect(document.querySelector('.bg-black\\/40')).not.toBeInTheDocument()
+  expect(button).not.toBeDisabled()
+  vi.useRealTimers()
+})
+
+it('hides the floating shuffle button while settings is open', async () => {
+  render(<App />)
+  fireEvent.click(screen.getByRole('button', { name: /open settings/i }))
+  const shuffleButtons = screen.getAllByRole('button', { name: /shuffle order/i })
+  expect(shuffleButtons).toHaveLength(1)
 })

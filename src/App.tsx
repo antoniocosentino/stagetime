@@ -5,6 +5,8 @@ import { useInterval } from './hooks/useInterval'
 import { MainView } from './components/MainView'
 import { SettingsPanel } from './components/SettingsPanel'
 import { SquareModeIndicator } from './components/SquareModeIndicator'
+import { Dice3D } from './components/Dice3D'
+import { useShuffleAnimation } from './hooks/useShuffleAnimation'
 
 export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -21,6 +23,7 @@ export default function App() {
     setSquareModeEnabled,
     shuffleNames,
   } = useSettingsStore()
+  const { shuffling, trigger: handleShuffle } = useShuffleAnimation(shuffleNames)
 
   useEffect(() => {
     const { speakers, addSpeaker, removeSpeaker } = useTimerStore.getState()
@@ -50,6 +53,23 @@ export default function App() {
       >
         ⚙
       </button>
+      {!settingsOpen && (
+        <button
+          aria-label="Shuffle order"
+          onClick={handleShuffle}
+          disabled={shuffling}
+          className={`fixed bottom-6 right-20 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center hover:shadow-xl transition-all ${
+            shuffling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+          }`}
+        >
+          <Dice3D size={28} spinning={shuffling} />
+        </button>
+      )}
+      {shuffling && !settingsOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 pointer-events-none">
+          <Dice3D size={140} />
+        </div>
+      )}
       {squareModeEnabled && <SquareModeIndicator />}
       {settingsOpen && (
         <SettingsPanel
