@@ -65,7 +65,7 @@ export default function App() {
             shuffling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
           }`}
         >
-          <Dice3D size={28} spinning={shuffling} />
+          <Dice3D size={17} spinning={shuffling} />
         </button>
       )}
       {shuffling && !settingsOpen && (
